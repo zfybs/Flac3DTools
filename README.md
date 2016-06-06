@@ -1,0 +1,2 @@
+# HM2FL3D
+将Hypermesh风格输出的inp文件转换为Flac3D的风格
