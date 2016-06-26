@@ -1,5 +1,6 @@
 ﻿Imports System.Text.RegularExpressions
 Imports System.IO
+
 Module Hm2Flac3D
     Dim sr_inp As StreamReader
     Dim sw_Zone As StreamWriter
