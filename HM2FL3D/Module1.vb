@@ -522,9 +522,11 @@ Module Hm2Flac3D
         If (TypeName.IndexOf("S3", System.StringComparison.OrdinalIgnoreCase) >= 0) AndAlso componentName.IndexOf("Shell", System.StringComparison.OrdinalIgnoreCase) >= 0 Then
             eleType = ElementType.SHELL3
         End If
+
         'If (TypeName.IndexOf("S3", System.StringComparison.OrdinalIgnoreCase) >= 0) AndAlso componentName.IndexOf("Liner", System.StringComparison.OrdinalIgnoreCase) >= 0 Then
         '    eleType = ElementType.Liner3
         'End If
+
         If TypeName.IndexOf("C3D8", System.StringComparison.OrdinalIgnoreCase) >= 0 Then
             eleType = ElementType.ZONE_B8
         End If

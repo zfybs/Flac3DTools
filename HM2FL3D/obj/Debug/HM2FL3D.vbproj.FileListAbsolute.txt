@@ -7,3 +7,4 @@ F:\Software\Programming\Tests_Examples\HM2FL3D\HM2FL3D\obj\Debug\HM2FL3D.vbproj.
 F:\Software\Programming\Tests_Examples\HM2FL3D\HM2FL3D\obj\Debug\Hm2Flac3D.exe
 F:\Software\Programming\Tests_Examples\HM2FL3D\HM2FL3D\obj\Debug\Hm2Flac3D.xml
 F:\Software\Programming\Tests_Examples\HM2FL3D\HM2FL3D\obj\Debug\Hm2Flac3D.pdb
+F:\Software\Programming\Tests_Examples\HM2FL3D\HM2FL3D\obj\Debug\HM2FL3D.vbprojResolveAssemblyReference.cache
