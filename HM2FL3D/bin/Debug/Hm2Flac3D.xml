@@ -6,450 +6,449 @@ Hm2Flac3D
 </name>
 </assembly>
 <members>
-<member name="F:Hm2Flac3D.Hm2Structure.sw_Sel">
- <summary> 用来写入Structural element的节点的那个文本。 </summary>
-</member>
-<member name="F:Hm2Flac3D.Hm2Structure.SelId">
- <summary>
- 每一组Structural Element 的id号，此id号为全局的，各种不同类型的结构单元之间的id号也没有相同的。
- </summary>
- <remarks></remarks>
-</member>
-<member name="F:Hm2Flac3D.Hm2Structure.listLinerNode">
- <summary>
- 一个全局的节点集合，其中包含了所有Liner单元中的节点，而且其中的节点编号没有重复。
- </summary>
- <remarks></remarks>
-</member>
-<member name="F:Hm2Flac3D.Hm2Structure.linerGroup">
- <summary>
- 用来创建 Liner 的 Zone 单元集合。键为group的名称，值为此group中的Zone单元集合。
- </summary>
-</member>
-<member name="M:Hm2Flac3D.Hm2Structure.#ctor(System.IO.StreamReader,System.IO.StreamWriter,System.Text.StringBuilder@)">
- <summary>
- 构造函数
- </summary>
- <param name="inpReader"></param>
- <param name="structureWriter"></param>
- <param name="message">用于输出的消息说明</param>
-</member>
-<member name="M:Hm2Flac3D.Hm2Structure.ReadFile">
- <summary>
- 读取数据，并返回跳出循环的字符串
- </summary>
- <returns>如果数据提取成功，则返回True，否则返回False</returns>
- <remarks>在读取数据时，每一个生成单元的函数中，都会返回最后跳出循环的那个字符串，如果某行字符串没有进行任何的数据提取，或者进行单元类型的判断，则继续读取下一行字符。</remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Structure.ReadElements(System.IO.StreamReader,System.String)">
- <summary>
- 读取数据，并返回跳出循环的字符串
- </summary>
- <param name="sr_inp"></param>
- <param name="stringline"> 当前要读取 inp 文件中的那一行数据 </param>
- <remarks>在读取数据时，每一个生成单元的函数中，都会返回最后跳出循环的那个字符串，如果某行字符串没有进行任何的数据提取，或者进行单元类型的判断，则继续读取下一行字符。</remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Structure.Gen_Node(System.IO.StreamReader)">
- <summary>
- 创建节点
- </summary>
- <param name="sr">用来提取数据的inp文件</param>
- <returns></returns>
-</member>
-<member name="M:Hm2Flac3D.Hm2Structure.Gen_Pile(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
- <summary>
- 生成桩单元，并返回跳出循环的字符串
- </summary>
- <param name="Component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
- <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
- <remarks></remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Structure.Gen_Beam(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
- <summary>
- 生成梁单元，并返回跳出循环的字符串
- </summary>
- <param name="Component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
- <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
- <remarks></remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Structure.Gen_Shell3(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
- <summary>
- 生成三角形壳单元，并返回跳出循环的字符串
- </summary>
- <param name="sr"></param>
- <param name="sw"></param>
- <param name="Component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
- <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
- <remarks></remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Structure.Gen_Liner3(System.IO.StreamReader,System.IO.StreamWriter,System.String,System.String)">
- <summary>
- 生成三角形 Liner 单元，并返回跳出循环的字符串
- </summary>
- <param name="sr"></param>
- <param name="sw"></param>
- <param name="componentName"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
- <param name="groupName"> 要依托于哪一个group来生成liner单元 </param>
- <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
- <remarks></remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Structure.Gen_Liner4(System.IO.StreamReader,System.IO.StreamWriter,System.String,System.String)">
- <summary>
- 通过共面四边形来创建分割此四边形的两个Liner三角形Liner单元，其在Flac3d中的导入格式为：sel liner id 1 em group ex1 range x 23.73 23.78 y -0.01 0.01 z 19.65 19.67
- </summary>
- <param name="sr"></param>
- <param name="sw"> S4类型的单元在inp文件中的格式为： 102038,    107275,    105703,    105704,    104375  </param>
- <param name="componentName"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
- <param name="groupName"> 要依托于哪一个group来生成liner单元 </param>
- <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
- <remarks>创建方法为先找到此四边形的形心，然后将形心点向扩展1mm， 以形成一个体积为1立方毫米的立方体，然后用此立方体来作为创建 Liner 的 range。</remarks>
-</member>
-<member name="F:Hm2Flac3D.InpReader.sr_inp">
- <summary> 用来读取网格的 inp 文件 </summary>
-</member>
-<member name="F:Hm2Flac3D.InpReader._message">
- <summary> 用于输出的消息说明 </summary>
-</member>
-<member name="M:Hm2Flac3D.InpReader.ReadFile">
- <summary>
- 读取数据,并返回在读取数据的过程中是否出错。
- </summary>
- <returns>如果数据提取成功，则返回True，否则返回False</returns>
- <remarks>在读取数据时，每一个生成单元的函数中，都会返回最后跳出循环的那个字符串，如果某行字符串没有进行任何的数据提取，或者进行单元类型的判断，则继续读取下一行字符。</remarks>
-</member>
-<member name="M:Hm2Flac3D.InpReader.ReadNodesOrGridpoint">
- <summary>
- 读取网格节点数据,并返回在读取数据的过程中是否出错。
- </summary>
- <returns>如果数据提取成功，则返回True，否则返回False</returns>
- <remarks>在读取数据时，每一个生成单元的函数中，都会返回最后跳出循环的那个字符串，如果某行字符串没有进行任何的数据提取，或者进行单元类型的判断，则继续读取下一行字符。</remarks>
-</member>
-<member name="M:Hm2Flac3D.InpReader.Gen_Node(System.IO.StreamReader)">
- <summary>
- 创建节点，并返回跳出循环的字符串
- </summary>
- <param name="sr"> 用来提取数据的inp文件 </param>
- <returns></returns>
-</member>
-<member name="M:Hm2Flac3D.InpReader.ReadElements(System.IO.StreamReader,System.String)">
- <summary>
- 读取数据,并返回在读取数据的过程中是否出错。
- </summary>
- <param name="sr_inp"></param>
- <param name="stringline"> 当前要读取 inp 文件中的那一行数据 </param>
- <returns>如果数据提取成功，则返回True，否则返回False</returns>
- <remarks>在读取数据时，每一个生成单元的函数中，都会返回最后跳出循环的那个字符串，如果某行字符串没有进行任何的数据提取，或者进行单元类型的判断，则继续读取下一行字符。</remarks>
-</member>
-<member name="M:Hm2Flac3D.InpReader.GenarateElement(Hm2Flac3D.ElementType,System.IO.StreamReader,System.String)">
- <summary>
- 生成Flac3D中的单元，并返回跳出循环的字符串
- </summary>
- <param name="type"> 此单元的类型 </param>
- <param name="sr"> 用来提取数据的inp文件 </param>
- <param name="Component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
- <returns></returns>
-</member>
 <member name="F:Hm2Flac3D.Hm2Flac3D.blnEditMode">
- <summary>
+	<summary>
  是否是按编辑模式进行数据提取。
  在编辑模式下，文件的位置，Abaqus中的单元类型与Flac3d中的单元类型的对应关系等都是可以人工指定的。
  </summary>
- <remarks></remarks>
-</member>
-<member name="F:Hm2Flac3D.Hm2Flac3D.SelId">
- <summary>
+	<remarks></remarks>
+</member><member name="F:Hm2Flac3D.Hm2Flac3D.SelId">
+	<summary>
  每一组Structural Element 的id号，此id号为全局的，各种不同类型的结构单元之间的id号也没有相同的。
  </summary>
- <remarks></remarks>
-</member>
-<member name="F:Hm2Flac3D.Hm2Flac3D.listLinerNode">
- <summary>
+	<remarks></remarks>
+</member><member name="F:Hm2Flac3D.Hm2Flac3D.listLinerNode">
+	<summary>
  一个全局的节点集合，其中包含了所有Liner单元中的节点，而且其中的节点编号没有重复。
  </summary>
- <remarks></remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Flac3D.ReadFile(System.IO.StreamReader,System.IO.StreamWriter,System.IO.StreamWriter)">
- <summary>
+	<remarks></remarks>
+</member><member name="M:Hm2Flac3D.Hm2Flac3D.ReadFile(System.IO.StreamReader,System.IO.StreamWriter,System.IO.StreamWriter)">
+	<summary>
  读取数据,并返回在读取数据的过程中是否出错。
  </summary>
- <param name="sr_inp"></param>
- <param name="sw_Sel"></param>
- <param name="sw_Zone"></param>
- <returns>如果数据提取成功，则返回True，否则返回False</returns>
- <remarks>在读取数据时，每一个生成单元的函数中，都会返回最后跳出循环的那个字符串，如果某行字符串没有进行任何的数据提取，或者进行单元类型的判断，则继续读取下一行字符。</remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Flac3D.Gen_Node(System.IO.StreamReader,System.IO.StreamWriter,System.IO.StreamWriter)">
- <summary>
+	<param name="sr_inp"></param>
+	<param name="sw_Sel"></param>
+	<param name="sw_Zone"></param>
+	<returns>如果数据提取成功，则返回True，否则返回False</returns>
+	<remarks>在读取数据时，每一个生成单元的函数中，都会返回最后跳出循环的那个字符串，如果某行字符串没有进行任何的数据提取，或者进行单元类型的判断，则继续读取下一行字符。</remarks>
+</member><member name="M:Hm2Flac3D.Hm2Flac3D.Gen_Node(System.IO.StreamReader,System.IO.StreamWriter,System.IO.StreamWriter)">
+	<summary>
  创建节点
  </summary>
- <param name="sr">用来提取数据的inp文件</param>
- <param name="sw_Sel">用来写入Structural element的节点的那个文本。</param>
- <param name="sw_zone">用来写入zone单元的节点的那个文本。</param>
- <remarks></remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Flac3D.Gen_Pile(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
- <summary>
+	<param name="sr">用来提取数据的inp文件</param>
+	<param name="sw_Sel">用来写入Structural element的节点的那个文本。</param>
+	<param name="sw_zone">用来写入zone单元的节点的那个文本。</param>
+	<remarks></remarks>
+</member><member name="M:Hm2Flac3D.Hm2Flac3D.Gen_Pile(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
+	<summary>
  生成桩单元，并返回跳出循环的字符串
  </summary>
- <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
- <remarks></remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Flac3D.Gen_Beam(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
- <summary>
+	<returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
+	<remarks></remarks>
+</member><member name="M:Hm2Flac3D.Hm2Flac3D.Gen_Beam(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
+	<summary>
  生成梁单元，并返回跳出循环的字符串
  </summary>
- <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
- <remarks></remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Flac3D.Gen_Shell3(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
- <summary>
+	<returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
+	<remarks></remarks>
+</member><member name="M:Hm2Flac3D.Hm2Flac3D.Gen_Shell3(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
+	<summary>
  生成三角形壳单元，并返回跳出循环的字符串
  </summary>
- <param name="sr"></param>
- <param name="sw"></param>
- <param name="Component"></param>
- <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
- <remarks></remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Flac3D.Gen_Liner3(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
- <summary>
+	<param name="sr"></param>
+	<param name="sw"></param>
+	<param name="Component"></param>
+	<returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
+	<remarks></remarks>
+</member><member name="M:Hm2Flac3D.Hm2Flac3D.Gen_Liner3(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
+	<summary>
  生成三角形壳单元，并返回跳出循环的字符串
  </summary>
- <param name="sr"></param>
- <param name="sw"></param>
- <param name="Component"></param>
- <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
- <remarks></remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Flac3D.Gen_Zone_B8(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
- <summary>
+	<param name="sr"></param>
+	<param name="sw"></param>
+	<param name="Component"></param>
+	<returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
+	<remarks></remarks>
+</member><member name="M:Hm2Flac3D.Hm2Flac3D.Gen_Zone_B8(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
+	<summary>
  生成六面体八节点单元，并返回跳出循环的字符串
  </summary>
- <param name="sr"></param>
- <param name="sw_zone"></param>
- <param name="Component"></param>
- <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
- <remarks>由于在inp文件中，此类单元的节点是分在两行中的，所以不能用“match.Success”作为循环终止的判断</remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Flac3D.Gen_Zone_W6(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
- <summary>
+	<param name="sr"></param>
+	<param name="sw_zone"></param>
+	<param name="Component"></param>
+	<returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
+	<remarks>由于在inp文件中，此类单元的节点是分在两行中的，所以不能用“match.Success”作为循环终止的判断</remarks>
+</member><member name="M:Hm2Flac3D.Hm2Flac3D.Gen_Zone_W6(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
+	<summary>
  生成三棱柱（五面体、六节点）单元，并返回跳出循环的字符串
  </summary>
- <param name="sr"></param>
- <param name="sw_zone"></param>
- <param name="Component"></param>
- <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
- <remarks></remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Flac3D.Gen_Zone_T4(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
- <summary>
+	<param name="sr"></param>
+	<param name="sw_zone"></param>
+	<param name="Component"></param>
+	<returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
+	<remarks></remarks>
+</member><member name="M:Hm2Flac3D.Hm2Flac3D.Gen_Zone_T4(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
+	<summary>
  生成四面体（金字塔形、四节点）单元，并返回跳出循环的字符串
  </summary>
- <param name="sr"></param>
- <param name="sw_zone"></param>
- <param name="Component"></param>
- <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
- <remarks></remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Flac3D.getReply(System.String)">
- <summary>
+	<param name="sr"></param>
+	<param name="sw_zone"></param>
+	<param name="Component"></param>
+	<returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
+	<remarks></remarks>
+</member><member name="M:Hm2Flac3D.Hm2Flac3D.getReply(System.String)">
+	<summary>
  在Console中进行手动判断，如果用户输入Yes或者Y，则返回布尔值True，否则返回False
  </summary>
- <param name="question">要询问用户的问题</param>
- <returns></returns>
- <remarks>如果用户输入Yes或者Y，则返回布尔值True，否则返回False</remarks>
-</member>
-<member name="F:Hm2Flac3D.Hm2Zone.sw_Zone">
- <summary> 用来写入 Zone 单元的节点的那个文本。 </summary>
-</member>
-<member name="M:Hm2Flac3D.Hm2Zone.#ctor(System.IO.StreamReader,System.IO.StreamWriter,System.Text.StringBuilder@)">
- <summary>
+	<param name="question">要询问用户的问题</param>
+	<returns></returns>
+	<remarks>如果用户输入Yes或者Y，则返回布尔值True，否则返回False</remarks>
+</member><member name="F:Hm2Flac3D.Hm2Structure.sw_Sel">
+	<summary> 用来写入Structural element的节点的那个文本。 </summary>
+</member><member name="F:Hm2Flac3D.Hm2Structure.SelId">
+	<summary>
+ 每一组Structural Element 的id号，此id号为全局的，各种不同类型的结构单元之间的id号也没有相同的。
+ </summary>
+	<remarks></remarks>
+</member><member name="F:Hm2Flac3D.Hm2Structure._allNodes">
+	<summary>
+ 一个全局的节点集合，其中包含了所有Liner单元中的节点，而且其中的节点编号没有重复。
+ </summary>
+	<remarks></remarks>
+</member><member name="M:Hm2Flac3D.Hm2Structure.#ctor(System.IO.StreamReader,System.IO.StreamWriter,System.Text.StringBuilder@)">
+	<summary>
  构造函数
  </summary>
- <param name="inpReader"></param>
- <param name="zoneWriter"></param>
- <param name="message">用于输出的消息说明</param>
-</member>
-<member name="M:Hm2Flac3D.Hm2Zone.ReadFile">
- <summary>
+	<param name="inpReader"></param>
+	<param name="structureWriter"></param>
+	<param name="message">用于输出的消息说明</param>
+</member><member name="M:Hm2Flac3D.Hm2Structure.ReadFile">
+	<summary>
  读取数据，并返回跳出循环的字符串
  </summary>
- <returns>如果数据提取成功，则返回True，否则返回False</returns>
- <remarks>在读取数据时，每一个生成单元的函数中，都会返回最后跳出循环的那个字符串，如果某行字符串没有进行任何的数据提取，或者进行单元类型的判断，则继续读取下一行字符。</remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Zone.ReadElements(System.IO.StreamReader,System.String)">
- <summary>
+	<returns>如果数据提取成功，则返回True，否则返回False</returns>
+	<remarks>在读取数据时，每一个生成单元的函数中，都会返回最后跳出循环的那个字符串，如果某行字符串没有进行任何的数据提取，或者进行单元类型的判断，则继续读取下一行字符。</remarks>
+</member><member name="M:Hm2Flac3D.Hm2Structure.ReadElements(System.IO.StreamReader,System.String)">
+	<summary>
  读取数据，并返回跳出循环的字符串
  </summary>
- <param name="sr_inp"></param>
- <param name="stringline"> 当前要读取 inp 文件中的那一行数据 </param>
- <returns>如果数据提取成功，则返回True，否则返回False</returns>
- <remarks>在读取数据时，每一个生成单元的函数中，都会返回最后跳出循环的那个字符串，如果某行字符串没有进行任何的数据提取，或者进行单元类型的判断，则继续读取下一行字符。</remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Zone.GenarateElement(Hm2Flac3D.ElementType,System.IO.StreamReader,System.String)">
- <summary>
- 生成Flac3D中的Zone单元，并返回跳出循环的字符串
+	<param name="sr_inp"></param>
+	<param name="stringline"> 当前要读取 inp 文件中的那一行数据 </param>
+	<remarks>在读取数据时，每一个生成单元的函数中，都会返回最后跳出循环的那个字符串，如果某行字符串没有进行任何的数据提取，或者进行单元类型的判断，则继续读取下一行字符。</remarks>
+</member><member name="M:Hm2Flac3D.Hm2Structure.Gen_Node(System.IO.StreamReader)">
+	<summary>
+ 创建节点
  </summary>
- <param name="type"></param>
- <param name="sr"></param>
- <param name="component"></param>
- <returns></returns>
-</member>
-<member name="M:Hm2Flac3D.Hm2Zone.Gen_Group(System.IO.StreamReader,System.String)">
- <summary> 在zones.flac3d 文件中写入用来绑定Liner的Group的单元集合 </summary>
- <param name="sr"></param>
- <param name="groupName"> group的名称必须以GLiner开头，而且不包含“-” </param>
- <returns></returns>
-</member>
-<member name="M:Hm2Flac3D.Hm2Zone.Gen_Zone_B8(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
- <summary>
- 生成六面体八节点单元，并返回跳出循环的字符串
+	<param name="sr">用来提取数据的inp文件</param>
+	<returns></returns>
+</member><member name="M:Hm2Flac3D.Hm2Structure.Gen_Pile(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
+	<summary>
+ 生成桩单元，并返回跳出循环的字符串
  </summary>
- <param name="sr"></param>
- <param name="sw_zone"></param>
- <param name="Component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
- <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
- <remarks>由于在inp文件中，此类单元的节点是分在两行中的，所以不能用“match.Success”作为循环终止的判断</remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Zone.Gen_Zone_W6(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
- <summary>
- 生成三棱柱（五面体、六节点）单元，并返回跳出循环的字符串
+	<param name="Component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
+	<returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
+	<remarks></remarks>
+</member><member name="M:Hm2Flac3D.Hm2Structure.Gen_Beam(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
+	<summary>
+ 生成梁单元，并返回跳出循环的字符串
  </summary>
- <param name="sr"></param>
- <param name="sw_zone"></param>
- <param name="Component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
- <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
- <remarks></remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Zone.Gen_Zone_T4(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
- <summary>
- 生成四面体（金字塔形、四节点）单元，并返回跳出循环的字符串
+	<param name="Component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
+	<returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
+	<remarks></remarks>
+</member><member name="M:Hm2Flac3D.Hm2Structure.Gen_Shell3(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
+	<summary>
+ 生成三角形壳单元，并返回跳出循环的字符串
  </summary>
- <param name="sr"></param>
- <param name="sw_zone"></param>
- <param name="Component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
- <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
- <remarks></remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Flac3DHandler.GetElementType(System.String,System.String)">
- <summary>
- 根据inp文件中对于单元类型以及Component命名的描述，确定此组是属于什么单元
+	<param name="sr"></param>
+	<param name="sw"></param>
+	<param name="Component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
+	<returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
+	<remarks></remarks>
+</member><member name="M:Hm2Flac3D.Hm2Structure.Gen_Liner(System.IO.StreamReader,System.IO.StreamWriter,System.String,System.Boolean)">
+	<summary>
+ 根据共面的三个节点或者四个节点来生成三角形 Liner 单元，并返回跳出循环的字符串
  </summary>
- <param name="TypeName"></param>
- <param name="componentName"> inp 文件中表示的Hypermesh的 Component 的名称 </param>
- <returns>返回与inp文件中的单元类型所对应的Flac3d中的单元类型</returns>
- <remarks></remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Flac3DHandler.GetReply(System.String)">
- <summary>
- 在Console中进行手动判断，如果用户输入Yes或者Y，则返回布尔值True，否则返回False
+	<param name="sr"></param>
+	<param name="sw"></param>
+	<param name="componentName"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
+	<param name="threeNodes"> true 表示通过 S3 单元来创建Liner，False 表示通过 S4 来创建 Liner </param>
+	<returns>在这一区块中，最后一次读取的字符，即跳出循环的字符</returns>
+	<remarks> Element Set 与对应的 Liner Component的命名规范如下：
+ 1.Element Set必须以“GLiner”开头，而且名称中不能包含“-”。比如“GLiner”、“GLiner_Zone”都是可以的；
+ 2.Liner Component的名称必须以“Liner-附着组名”开头。比如当其要附着到组GLiner中时，“Liner-GLinerLeft”、“Liner-GLiner-Left”都是可以的，
+         但是“Liner-GLinerLeft”会将此Liner单元附着到组“GLinerLeft”中，但是如果Flac3D中并没有创建一个组“GLinerLeft”的话，自然是会出现异常的。</remarks>
+</member><member name="M:Hm2Flac3D.Hm2Structure.Gen_Liner3(System.IO.StreamReader,System.IO.StreamWriter,System.String,System.String)">
+	<summary>
+ 生成三角形 Liner 单元，并返回跳出循环的字符串
  </summary>
- <param name="question">要询问用户的问题</param>
- <returns></returns>
- <remarks>如果用户输入Yes或者Y，则返回布尔值True，否则返回False</remarks>
-</member>
-<member name="M:Hm2Flac3D.Hm2Flac3DHandler.FindCentroid(Hm2Flac3D.XYZ,Hm2Flac3D.XYZ,Hm2Flac3D.XYZ)">
- <summary>
- 寻找三个点所形成的空间三角形的形心
- </summary>
- <param name="node1"></param>
- <param name="node2"></param>
- <param name="node3"></param>
- <returns></returns>
-</member>
-<member name="M:Hm2Flac3D.Hm2Flac3DHandler.FindCentroid(Hm2Flac3D.XYZ,Hm2Flac3D.XYZ,Hm2Flac3D.XYZ,Hm2Flac3D.XYZ)">
- <summary>
- 寻找空间四个点所形成的共面的空间四边形角形的形心，如果四个点不共面，则会报错 
- </summary>
- <param name="node1"></param>
- <param name="node2"></param>
- <param name="node3"></param>
- <param name="node4"></param>
- <returns></returns>
-</member>
-<member name="T:Hm2Flac3D.ElementType">
- <summary>
- 在Flac3D中的单元类型，每一种类型代表了一种单元的编码形式
- </summary>
- <remarks></remarks>
-</member>
-<member name="F:Hm2Flac3D.ElementType.BEAM">
- <summary>
- 梁单元，其在Flac3d中的导入格式为：SEL BEAMSEL  cid   107629 id   107629 nodes  1768565 1757075
- </summary>
- <remarks>在结构单元导入文件Structures.dat的结尾要加上一句：SEL NODE INIT XPOS ADD 0.0 ，
- 以将结构单元之间进行耦合。</remarks>
-</member>
-<member name="F:Hm2Flac3D.ElementType.PILE">
- <summary>
- 桩单元，其在Flac3d中的导入格式为：SEL PILESEL  cid   110190 id   110190 nodes  1770162 1769878
- </summary>
- <remarks>在结构单元导入文件Structures.dat的结尾要加上一句：SEL NODE INIT XPOS ADD 0.0 ，
- 以将结构单元之间进行耦合。</remarks>
-</member>
-<member name="F:Hm2Flac3D.ElementType.SHELL3">
- <summary>
- 三角形壳单元，其在Flac3d中的导入格式为：SEL SHELLSEL cid    99440 id    99440 ele DKT_CST  nodes  1759355 1758957 1758956
- </summary>
- <remarks>在结构单元导入文件Structures.dat的结尾要加上一句：SEL NODE INIT XPOS ADD 0.0 ，
- 以将结构单元之间进行耦合。</remarks>
-</member>
-<member name="F:Hm2Flac3D.ElementType.Liner3">
- <summary>
- 通过三角形平面来创建三角形Liner单元，其在Flac3d中的导入格式为：SEL LINERSEL cid    68341 id    68341 ele DKT_CST  nodes  1564835 1579841 1564832
- </summary>
- <remarks></remarks>
-</member>
-<member name="F:Hm2Flac3D.ElementType.Liner4">
- <summary>
+	<param name="sr"></param>
+	<param name="sw"></param>
+	<param name="componentName"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
+	<param name="groupName"> 要依托于哪一个group来生成liner单元 </param>
+	<returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
+	<remarks></remarks>
+</member><member name="M:Hm2Flac3D.Hm2Structure.Gen_Liner4(System.IO.StreamReader,System.IO.StreamWriter,System.String,System.String)">
+	<summary>
  通过共面四边形来创建分割此四边形的两个Liner三角形Liner单元，其在Flac3d中的导入格式为：sel liner id 1 em group ex1 range x 23.73 23.78 y -0.01 0.01 z 19.65 19.67
  </summary>
- <remarks> 创建方法为先找到此四边形的形心，然后将形心点向扩展1mm， 以形成一个体积为1立方毫米的立方体，然后用此立方体来作为创建 Liner 的 range。 </remarks>
-</member>
-<member name="F:Hm2Flac3D.ElementType.ZONE_B8">
- <summary>
- 六面体八节点单元，其在Flac3d中的导入格式为：Z B8   90098  95441  95242  93742  95005  93417  95617  93041  95485
- </summary>
- <remarks></remarks>
-</member>
-<member name="F:Hm2Flac3D.ElementType.ZONE_W6">
- <summary>
- 三棱柱（五面体、六节点）单元，其在Flac3d中的导入格式为：Z W6   90083  93007  93014  93016  94941  94674  92956
- </summary>
- <remarks></remarks>
-</member>
-<member name="F:Hm2Flac3D.ElementType.ZONE_T4">
- <summary>
- 四面体（金字塔形、四节点）单元，其在Flac3d中的导入格式为：Z T4   90111  92891  92874  92868  92954
- </summary>
- <remarks></remarks>
-</member>
-<member name="F:Hm2Flac3D.ElementType.Others">
- <summary>
- 其他未识别的单元类型
- </summary>
- <remarks></remarks>
-</member>
-<member name="T:Hm2Flac3D.XYZ">
- <summary>
- 一个空间的坐标点
- </summary>
-</member>
-<member name="T:Hm2Flac3D.My.Resources.Resources">
-<summary>
-  A strongly-typed resource class, for looking up localized strings, etc.
-</summary>
-</member>
-<member name="P:Hm2Flac3D.My.Resources.Resources.ResourceManager">
-<summary>
+	<param name="sr"></param>
+	<param name="sw"> S4类型的单元在inp文件中的格式为： 102038,    107275,    105703,    105704,    104375  </param>
+	<param name="componentName"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
+	<param name="groupName"> 要依托于哪一个group来生成liner单元 </param>
+	<returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
+	<remarks>创建方法为先找到此四边形的形心，然后将形心点向扩展1mm， 以形成一个体积为1立方毫米的立方体，然后用此立方体来作为创建 Liner 的 range。</remarks>
+</member><member name="P:Hm2Flac3D.My.Resources.Resources.ResourceManager">
+	<summary>
   Returns the cached ResourceManager instance used by this class.
 </summary>
-</member>
-<member name="P:Hm2Flac3D.My.Resources.Resources.Culture">
-<summary>
+</member><member name="P:Hm2Flac3D.My.Resources.Resources.Culture">
+	<summary>
   Overrides the current thread's CurrentUICulture property for all
   resource lookups using this strongly typed resource class.
 </summary>
+</member><member name="T:Hm2Flac3D.My.Resources.Resources">
+	<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member><member name="M:Hm2Flac3D.Hm2Flac3DHandler.GetElementType(System.String,System.String)">
+	<summary>
+ 根据inp文件中对于单元类型以及Component命名的描述，确定此组是属于什么单元
+ </summary>
+	<param name="TypeName"></param>
+	<param name="componentName"> inp 文件中表示的Hypermesh的 Component 的名称 </param>
+	<returns>返回与inp文件中的单元类型所对应的Flac3d中的单元类型</returns>
+	<remarks></remarks>
+</member><member name="M:Hm2Flac3D.Hm2Flac3DHandler.GetReply(System.String)">
+	<summary>
+ 在Console中进行手动判断，如果用户输入Yes或者Y，则返回布尔值True，否则返回False
+ </summary>
+	<param name="question">要询问用户的问题</param>
+	<returns></returns>
+	<remarks>如果用户输入Yes或者Y，则返回布尔值True，否则返回False</remarks>
+</member><member name="M:Hm2Flac3D.Hm2Flac3DHandler.FindCentroid(Hm2Flac3D.XYZ,Hm2Flac3D.XYZ,Hm2Flac3D.XYZ)">
+	<summary>
+ 寻找三个点所形成的空间三角形的形心
+ </summary>
+	<param name="node1"></param>
+	<param name="node2"></param>
+	<param name="node3"></param>
+	<returns></returns>
+</member><member name="M:Hm2Flac3D.Hm2Flac3DHandler.FindCentroid(Hm2Flac3D.XYZ,Hm2Flac3D.XYZ,Hm2Flac3D.XYZ,Hm2Flac3D.XYZ)">
+	<summary>
+ 寻找空间四个点所形成的共面的空间四边形角形的形心，如果四个点不共面，则会报错 
+ </summary>
+	<param name="node1"></param>
+	<param name="node2"></param>
+	<param name="node3"></param>
+	<param name="node4"></param>
+	<returns> 四边形的形心点的坐标 </returns>
+	<remarks>在inp文件中，输入的四个节点的顺序一定是可以形成一个边界环路的，即使此S4单元的网格形状为有凹角的异型错误网格。</remarks>
+</member><member name="M:Hm2Flac3D.Hm2Flac3DHandler.Area(Hm2Flac3D.XYZ,Hm2Flac3D.XYZ,Hm2Flac3D.XYZ)">
+	<summary> 计算空间三角形的面积  </summary>
+	<returns></returns>
+</member><member name="F:Hm2Flac3D.Hm2Flac3DHandler.rangePrecision">
+	<summary>
+ 用来框选住 Liner 的形心的一个立方体区域，其单位为m。也就是说，Hypermesh中要尽量保证模型的网格尺寸不要小于这个值。
+ </summary>
+	<remarks></remarks>
+</member><member name="M:Hm2Flac3D.Hm2Flac3DHandler.ExtendCentroid(Hm2Flac3D.XYZ)">
+	<summary>
+ 将 形心点 扩展到一个立方体区域
+ </summary>
+	<param name="centroid"></param>
+	<returns>返回的格式为： "Range x= (23.73, 23.78) y =( -0.01, 0.01)  z= ( 19.65, 19.67)"</returns>
+	<remarks></remarks>
+</member><member name="M:Hm2Flac3D.Hm2Flac3DHandler.FreeConsole">
+	<summary>  释放控制台   </summary>
+</member><member name="M:Hm2Flac3D.Hm2Flac3DHandler.AllocConsole">
+	<summary>
+ 加载控制台。加载后可以直接通过 Console.Write() 等静态方法对控制台进行读写操作
+ </summary>
+	<returns></returns>
+	<remarks> 加载后，可以通过API函数 FreeConsole 释放控制台 </remarks>
+</member><member name="M:Hm2Flac3D.XYZ.Distance(Hm2Flac3D.XYZ,Hm2Flac3D.XYZ)">
+	<summary> 计算空间两个点的距离 </summary>
+	<returns></returns>
+</member><member name="M:Hm2Flac3D.XYZ.DistanceTo(Hm2Flac3D.XYZ)">
+	<summary> 计算空间两个点的距离 </summary>
+	<returns></returns>
+</member><member name="M:Hm2Flac3D.XYZ.Move(Hm2Flac3D.XYZ)">
+	<summary> 一个空间点沿空间的位移矢量移动后的新位置 </summary>
+</member><member name="M:Hm2Flac3D.XYZ.VectorTo(Hm2Flac3D.XYZ)">
+	<summary> 从本坐标点指向输入的 node2 的位移矢量 </summary>
+	<param name="node2"> 矢量的终点 </param>
+	<returns> 一个空间矢量，起始点为 node1，终点为 node2 </returns>
+</member><member name="M:Hm2Flac3D.XYZ.Scale(System.Double)">
+	<summary>
+ 将一个空间矢量缩放到指定的长度（方向不变）
+ </summary>
+	<param name="newLength">缩放后的长度</param>
+	<returns> 缩放后的新矢量 </returns>
+</member><member name="M:Hm2Flac3D.XYZ.Length">
+	<summary> 空间矢量的长度 </summary>
+</member><member name="T:Hm2Flac3D.XYZ">
+	<summary>
+ 一个空间的坐标点或者空间的矢量
+ </summary>
+</member><member name="F:Hm2Flac3D.ElementType.BEAM">
+	<summary>
+ 梁单元，其在Flac3d中的导入格式为：SEL BEAMSEL  cid   107629 id   107629 nodes  1768565 1757075
+ </summary>
+	<remarks>在结构单元导入文件Structures.dat的结尾要加上一句：SEL NODE INIT XPOS ADD 0.0 ，
+ 以将结构单元之间进行耦合。</remarks>
+</member><member name="F:Hm2Flac3D.ElementType.PILE">
+	<summary>
+ 桩单元，其在Flac3d中的导入格式为：SEL PILESEL  cid   110190 id   110190 nodes  1770162 1769878
+ </summary>
+	<remarks>在结构单元导入文件Structures.dat的结尾要加上一句：SEL NODE INIT XPOS ADD 0.0 ，
+ 以将结构单元之间进行耦合。</remarks>
+</member><member name="F:Hm2Flac3D.ElementType.SHELL3">
+	<summary>
+ 三角形壳单元，其在Flac3d中的导入格式为：SEL SHELLSEL cid    99440 id    99440 ele DKT_CST  nodes  1759355 1758957 1758956
+ </summary>
+	<remarks>在结构单元导入文件Structures.dat的结尾要加上一句：SEL NODE INIT XPOS ADD 0.0 ，
+ 以将结构单元之间进行耦合。</remarks>
+</member><member name="F:Hm2Flac3D.ElementType.Liner3">
+	<summary>
+ 通过三角形平面来创建三角形Liner单元，其在Flac3d中的导入格式为：SEL LINERSEL cid    68341 id    68341 ele DKT_CST  nodes  1564835 1579841 1564832
+ </summary>
+	<remarks></remarks>
+</member><member name="F:Hm2Flac3D.ElementType.Liner4">
+	<summary>
+ 通过共面四边形来创建分割此四边形的两个Liner三角形Liner单元，其在Flac3d中的导入格式为：sel liner id 1 em group ex1 range x 23.73 23.78 y -0.01 0.01 z 19.65 19.67
+ </summary>
+	<remarks> 创建方法为先找到此四边形的形心，然后将形心点向扩展1mm， 以形成一个体积为1立方毫米的立方体，然后用此立方体来作为创建 Liner 的 range。 </remarks>
+</member><member name="F:Hm2Flac3D.ElementType.ZONE_B8">
+	<summary>
+ 六面体八节点单元，其在Flac3d中的导入格式为：Z B8   90098  95441  95242  93742  95005  93417  95617  93041  95485
+ </summary>
+	<remarks></remarks>
+</member><member name="F:Hm2Flac3D.ElementType.ZONE_W6">
+	<summary>
+ 三棱柱（五面体、六节点）单元，其在Flac3d中的导入格式为：Z W6   90083  93007  93014  93016  94941  94674  92956
+ </summary>
+	<remarks></remarks>
+</member><member name="F:Hm2Flac3D.ElementType.ZONE_T4">
+	<summary>
+ 四面体（金字塔形、四节点）单元，其在Flac3d中的导入格式为：Z T4   90111  92891  92874  92868  92954
+ </summary>
+	<remarks></remarks>
+</member><member name="F:Hm2Flac3D.ElementType.Others">
+	<summary>
+ 其他未识别的单元类型
+ </summary>
+	<remarks></remarks>
+</member><member name="T:Hm2Flac3D.ElementType">
+	<summary>
+ 在Flac3D中的单元类型，每一种类型代表了一种单元的编码形式
+ </summary>
+	<remarks></remarks>
+</member><member name="F:Hm2Flac3D.Hm2Zone.sw_Zone">
+	<summary> 用来写入 Zone 单元的节点的那个文本。 </summary>
+</member><member name="F:Hm2Flac3D.Hm2Zone.linerGroupSlot">
+	<summary>
+  将用来创建 Liner 的 group 放在 Flac 中 编号为2及以上的 slot 中，以避免与其他的group产生干扰。
+ </summary>
+	<remarks> 如果不显式指定 slot，则 group 默认是放在 slot 1 中的。 </remarks>
+</member><member name="M:Hm2Flac3D.Hm2Zone.#ctor(System.IO.StreamReader,System.IO.StreamWriter,System.Text.StringBuilder@)">
+	<summary>
+ 构造函数
+ </summary>
+	<param name="inpReader"></param>
+	<param name="zoneWriter"></param>
+	<param name="message">用于输出的消息说明</param>
+</member><member name="M:Hm2Flac3D.Hm2Zone.ReadFile">
+	<summary>
+ 读取数据，并返回跳出循环的字符串
+ </summary>
+	<returns>如果数据提取成功，则返回True，否则返回False</returns>
+	<remarks>在读取数据时，每一个生成单元的函数中，都会返回最后跳出循环的那个字符串，如果某行字符串没有进行任何的数据提取，或者进行单元类型的判断，则继续读取下一行字符。</remarks>
+</member><member name="M:Hm2Flac3D.Hm2Zone.ReadElements(System.IO.StreamReader,System.String)">
+	<summary>
+ 读取数据，并返回跳出循环的字符串
+ </summary>
+	<param name="sr_inp"></param>
+	<param name="stringline"> 当前要读取 inp 文件中的那一行数据 </param>
+	<returns>如果数据提取成功，则返回True，否则返回False</returns>
+	<remarks>在读取数据时，每一个生成单元的函数中，都会返回最后跳出循环的那个字符串，如果某行字符串没有进行任何的数据提取，或者进行单元类型的判断，则继续读取下一行字符。</remarks>
+</member><member name="M:Hm2Flac3D.Hm2Zone.GenarateElement(Hm2Flac3D.ElementType,System.IO.StreamReader,System.String)">
+	<summary>
+ 生成Flac3D中的Zone单元，并返回跳出循环的字符串
+ </summary>
+	<param name="type"></param>
+	<param name="sr"></param>
+	<param name="component"></param>
+	<returns></returns>
+</member><member name="M:Hm2Flac3D.Hm2Zone.Gen_Group(System.IO.StreamReader,System.String)">
+	<summary> 在zones.flac3d 文件中写入用来绑定Liner的Group的单元集合 </summary>
+	<param name="sr"></param>
+	<param name="groupName"> group的名称必须以GLiner开头，而且不包含“-” </param>
+	<returns></returns>
+</member><member name="M:Hm2Flac3D.Hm2Zone.Gen_Zone_B8(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
+	<summary>
+ 生成六面体八节点单元，并返回跳出循环的字符串
+ </summary>
+	<param name="sr"></param>
+	<param name="sw_zone"></param>
+	<param name="Component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
+	<returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
+	<remarks>由于在inp文件中，此类单元的节点是分在两行中的，所以不能用“match.Success”作为循环终止的判断</remarks>
+</member><member name="M:Hm2Flac3D.Hm2Zone.Gen_Zone_W6(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
+	<summary>
+ 生成三棱柱（五面体、六节点）单元，并返回跳出循环的字符串
+ </summary>
+	<param name="sr"></param>
+	<param name="sw_zone"></param>
+	<param name="Component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
+	<returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
+	<remarks></remarks>
+</member><member name="M:Hm2Flac3D.Hm2Zone.Gen_Zone_T4(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
+	<summary>
+ 生成四面体（金字塔形、四节点）单元，并返回跳出循环的字符串
+ </summary>
+	<param name="sr"></param>
+	<param name="sw_zone"></param>
+	<param name="Component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
+	<returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
+	<remarks></remarks>
+</member><member name="F:Hm2Flac3D.InpReader.sr_inp">
+	<summary> 用来读取网格的 inp 文件 </summary>
+</member><member name="F:Hm2Flac3D.InpReader._message">
+	<summary> 用于输出的消息说明 </summary>
+</member><member name="M:Hm2Flac3D.InpReader.ReadFile">
+	<summary>
+ 读取数据,并返回在读取数据的过程中是否出错。
+ </summary>
+	<returns>如果数据提取成功，则返回True，否则返回False</returns>
+	<remarks>在读取数据时，每一个生成单元的函数中，都会返回最后跳出循环的那个字符串，如果某行字符串没有进行任何的数据提取，或者进行单元类型的判断，则继续读取下一行字符。</remarks>
+</member><member name="M:Hm2Flac3D.InpReader.ReadNodesOrGridpoint">
+	<summary>
+ 读取网格节点数据,并返回在读取数据的过程中是否出错。
+ </summary>
+	<returns>如果数据提取成功，则返回True，否则返回False</returns>
+	<remarks>在读取数据时，每一个生成单元的函数中，都会返回最后跳出循环的那个字符串，如果某行字符串没有进行任何的数据提取，或者进行单元类型的判断，则继续读取下一行字符。</remarks>
+</member><member name="M:Hm2Flac3D.InpReader.Gen_Node(System.IO.StreamReader)">
+	<summary>
+ 创建节点，并返回跳出循环的字符串
+ </summary>
+	<param name="sr"> 用来提取数据的inp文件 </param>
+	<returns></returns>
+</member><member name="M:Hm2Flac3D.InpReader.ReadElements(System.IO.StreamReader,System.String)">
+	<summary>
+ 读取数据,并返回在读取数据的过程中是否出错。
+ </summary>
+	<param name="sr_inp"></param>
+	<param name="stringline"> 当前要读取 inp 文件中的那一行数据 </param>
+	<returns>如果数据提取成功，则返回True，否则返回False</returns>
+	<remarks>在读取数据时，每一个生成单元的函数中，都会返回最后跳出循环的那个字符串，如果某行字符串没有进行任何的数据提取，或者进行单元类型的判断，则继续读取下一行字符。</remarks>
+</member><member name="M:Hm2Flac3D.InpReader.GenarateElement(Hm2Flac3D.ElementType,System.IO.StreamReader,System.String)">
+	<summary>
+ 生成Flac3D中的单元，并返回跳出循环的字符串
+ </summary>
+	<param name="type"> 此单元的类型 </param>
+	<param name="sr"> 用来提取数据的inp文件 </param>
+	<param name="Component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
+	<returns></returns>
 </member>
 </members>
 </doc>

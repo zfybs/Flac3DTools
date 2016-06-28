@@ -4477,7 +4477,7 @@
      14172,      1069,      1070
      14173,      1070,       225
 **HWCOLOR COMP         19     3
-*ELEMENT,TYPE=S4R,ELSET=Liner-group1-wall
+*ELEMENT,TYPE=S4R,ELSET=Liner-GLiner-wall
     102038,    107275,    105703,    105704,    104375
     102035,    104369,    106873,    106874,    107266
     102032,    104385,    106239,    106240,    104371

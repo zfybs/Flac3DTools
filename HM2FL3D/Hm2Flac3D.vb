@@ -27,7 +27,7 @@ Module Hm2Flac3D
         Dim path_inp As String
         Dim path_flacStructure As String
         Dim path_flacZone As String
-        Console.WriteLine("******** CONVERT INP CODE(IMPORTED FROM HYPERMESH) TO FLAC3D ********")
+        Console.WriteLine("******** CONVERT INP CODE(EXPORTED FROM HYPERMESH) TO FLAC3D ********")
         blnEditMode = getReply("Run this application in edit mode.")
 
         ' 确定文件路径
@@ -68,7 +68,7 @@ Module Hm2Flac3D
         strHeading = " * --------------------------------------------------" & vbCrLf &
             " *  INP (exported from Hypermesh) to FLAC3D " & vbCrLf &
             " *  Coded by Zengfy" & vbCrLf &
-            " *  Latest update time: 2015/12/12 " & vbCrLf &
+            " *  Latest update time: 2015/6/28 " & vbCrLf &
             " * --------------------------------------------------" & vbCrLf &
             "* Generated time: " & DateTime.Today.ToString("yyyy/MM/dd") & "   " & DateTime.Now.ToShortTimeString & vbCrLf &
             vbCrLf & "* GRIDPOINTS"
