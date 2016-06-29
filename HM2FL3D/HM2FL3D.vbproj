@@ -89,6 +89,7 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ElementType.vb" />
     <Compile Include="Enhanced\form_Hm2Flac3D.Designer.vb">
       <DependentUpon>form_Hm2Flac3D.vb</DependentUpon>
     </Compile>
@@ -115,6 +116,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="XYZ.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Enhanced\form_Hm2Flac3D.resx">

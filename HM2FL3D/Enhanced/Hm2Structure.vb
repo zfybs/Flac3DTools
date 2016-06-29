@@ -20,12 +20,7 @@ Public Class Hm2Structure
     ''' 一个全局的节点集合，其中包含了所有Liner单元中的节点，而且其中的节点编号没有重复。
     ''' </summary>
     ''' <remarks></remarks>
-    Private listLinerNode As New SortedSet(Of Long)
-
-    ''' <summary>
-    ''' 用来创建 Liner 的 Zone 单元集合。键为group的名称，值为此group中的Zone单元集合。
-    ''' </summary>
-    Private linerGroup As New Dictionary(Of String, List(Of Integer))
+    Private _allNodes As New Dictionary(Of Long, XYZ)
 
 #End Region
 
@@ -111,20 +106,34 @@ Public Class Hm2Structure
     ''' <param name="sr">用来提取数据的inp文件</param>
     ''' <returns></returns>
     Protected Overrides Function Gen_Node(sr As StreamReader) As String
+        Const patternNode As String = "\s*(\d*),\s*(\d*),\s*(\d*),\s*(\d*)"
+        Dim match As Match
         Dim strLine As String
-        strLine = sr.ReadLine()  ' 大致的结构为： "        16,  10.0           ,  6.6666666666667,  0.0            "
+        strLine = sr.ReadLine()  ' 节点信息在inp中的大致的结构为： "   16,  10.0     ,  6.6666666666667,  0.0     "
         Do Until strLine.StartsWith("*")
+            ' 写入flac文件
             sw_Sel.WriteLine("SEL NODE cid  {0}", strLine) ' 大致的结构为： ' SEL NODE cid  1440016  0.216969418565193E+02 -0.531659539393860E+02 -0.161000000000000E+02
+
+            '保存节点信息，以供后面创建Liner之用
+            Dim comps As String() = strLine.Split(","c)
+
+            _allNodes.Add(Long.Parse(comps(0)), New XYZ(
+                              Double.Parse(comps(1)),
+                              Double.Parse(comps(2)),
+                              Double.Parse(comps(3))))
+
+
+            ' 读取下一个节点
             strLine = sr.ReadLine()  ' 大致的结构为： "        16,  10.0           ,  6.6666666666667,  0.0            "
         Loop
         Return strLine
     End Function
 
-    Protected Overrides Function GenarateElement(type As ElementType, sr As StreamReader, componentName As String) As String
+    Protected Overrides Function GenarateElement(type As ElementType, sr_inp As StreamReader, componentName As String) As String
         Dim strLine As String = Nothing
 
         Select Case type
-                        ' 结构单元
+            ' 结构单元
             Case ElementType.BEAM
                 strLine = Gen_Beam(sr_inp, sw_Sel, componentName)
             Case ElementType.PILE
@@ -132,29 +141,13 @@ Public Class Hm2Structure
             Case ElementType.SHELL3
                 strLine = Gen_Shell3(sr_inp, sw_Sel, componentName)
 
-            Case ElementType.Liner3
+            Case ElementType.Liner3 Or ElementType.Liner4
 
-                Dim patternLiner As String = "Liner-(.+)-"  '  以 “liner-组名-”开头
-                Dim match As Match = Regex.Match(componentName, patternLiner, RegexOptions.IgnoreCase)
-                If match.Success Then
-                    Dim groupName As String = match.Groups(0).Value
-                    strLine = Gen_Liner3(sr_inp, sw_Sel, componentName, groupName)
-                Else
-                    _message.AppendLine("无法识别要将 Liner 单元创建在哪一个 group 上。 对应的Component名称为" & componentName)
-                    Return strLine
-                End If
+                strLine = Gen_Liner(sr_inp, sw_Sel, componentName, True)
 
             Case ElementType.Liner4
 
-                Dim patternLiner As String = "Liner-(.+)-"  '  以 “liner-组名-”开头
-                Dim match As Match = Regex.Match(componentName, patternLiner, RegexOptions.IgnoreCase)
-                If match.Success Then
-                    Dim groupName As String = match.Groups(0).Value
-                    strLine = Gen_Liner4(sr_inp, sw_Sel, componentName, groupName)
-                Else
-                    _message.AppendLine("无法识别要将 Liner 单元创建在哪一个 group 上。 对应的Component名称为" & componentName)
-                    Return strLine
-                End If
+                strLine = Gen_Liner(sr_inp, sw_Sel, componentName, False)
 
             Case Else 'Hypermesh中的类型在Flac3d中没有设置对应的类型
                 _message.AppendLine(String.Format("Warning : Can not match element type "" {0} ""(in component {1}) with a corresponding type in Flac3D,", type.ToString(), componentName))
@@ -166,6 +159,7 @@ Public Class Hm2Structure
 
         Return strLine
     End Function
+
 
 
 #Region "  ---  生成不同类型的 Structure 单元"
@@ -272,6 +266,48 @@ Public Class Hm2Structure
         Return strLine
     End Function
 
+
+    ''' <summary>
+    ''' 根据共面的三个节点或者四个节点来生成三角形 Liner 单元，并返回跳出循环的字符串
+    ''' </summary>
+    ''' <param name="sr"></param>
+    ''' <param name="sw"></param>
+    ''' <param name="componentName"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
+    ''' <param name="threeNodes"> true 表示通过 S3 单元来创建Liner，False 表示通过 S4 来创建 Liner </param>
+    ''' <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符</returns>
+    ''' <remarks> Element Set 与对应的 Liner Component的命名规范如下：
+    ''' 1.Element Set必须以“GLiner”开头，而且名称中不能包含“-”。比如“GLiner”、“GLiner_Zone”都是可以的；
+    ''' 2.Liner Component的名称必须以“Liner-附着组名”开头。比如当其要附着到组GLiner中时，“Liner-GLinerLeft”、“Liner-GLiner-Left”都是可以的，
+    '''         但是“Liner-GLinerLeft”会将此Liner单元附着到组“GLinerLeft”中，但是如果Flac3D中并没有创建一个组“GLinerLeft”的话，自然是会出现异常的。</remarks>
+    Private Function Gen_Liner(sr As StreamReader, sw As StreamWriter, ByVal componentName As String, threeNodes As Boolean) As String
+        Dim strLine As String = Nothing
+
+        Dim patternLiner As String = "Liner-(.+)"  '  以 “liner-组名-”开头
+        Dim match As Match = Regex.Match(componentName, patternLiner, RegexOptions.IgnoreCase)
+        If match.Success Then  ' 说明 Liner的Component命名有效
+
+            ' 1、确定附着的组的名称
+
+            ' 当 liner 要附着到组 GLiner 中时，“Liner-GLinerLeft”、“Liner-GLiner-Left”都是可以的，
+            ' 但是“Liner-GLinerLeft”会将此Liner单元附着到组“GLinerLeft”中，
+            Dim groupName As String = match.Groups(1).Value
+            If groupName.Contains("-"c) Then
+                groupName = groupName.Split("-"c)(0)
+            End If
+
+            ' 2、进行转换
+            If threeNodes Then
+                strLine = Gen_Liner3(sr_inp, sw_Sel, componentName, groupName)
+            Else
+                strLine = Gen_Liner4(sr_inp, sw_Sel, componentName, groupName)
+            End If
+        Else
+            _message.AppendLine("无法识别要将 Liner 单元创建在哪一个 group 上。 对应的Component名称为" & componentName)
+            Return strLine
+        End If
+
+    End Function
+
     ''' <summary>
     ''' 生成三角形 Liner 单元，并返回跳出循环的字符串
     ''' </summary>
@@ -287,21 +323,29 @@ Public Class Hm2Structure
         Dim eleId As Long
         Dim node1 As Long, node2 As Long, node3 As Long
         '
-        strLine = sr.ReadLine()  ' 大致的结构为： "        16,  10.0           ,  6.6666666666667,  0.0            "
+        strLine = sr.ReadLine()  ' S3类型的信息在inp中，大致的结构为： " 102038,    107275,    105703,    105704"
         Dim match As Match, groups As GroupCollection
         match = Regex.Match(strLine, pattern)
         Do While match.Success
             groups = match.Groups
-            eleId = groups(1).Value
+            eleId = groups(1).Value  ' 在 inp 中 S3 单元的id号，但是这个单元并不用来创建Flac中的 liner 单元，而是利用其三个节点来创建liner 单元。
             node1 = groups(2).Value
             node2 = groups(3).Value
             node3 = groups(4).Value
+
+            ' 获取此三个节点所形成的三角形的形心点
+            Dim centroid As XYZ = Hm2Flac3DHandler.FindCentroid(_allNodes(node1), _allNodes(node2), _allNodes(node3))
+
+            Dim range As String = Hm2Flac3DHandler.ExtendCentroid(centroid)
+
+            ' 创建与两面都有与 zone 的接触的 Liner 单元
+            ' Sel Liner  id 1 em group ex1 range x 23.73 23.78 y -0.01 0.01 z 19.65 19.67
+            sw.WriteLine("Sel Liner id {0} em group {1} {2}", SelId, groupName, range)
+
             '下面这一条语句所创建的Liner，它并不会与其周围的Zone之间建立 Node-to-Zone links.
-            ' sel liner id 1 em group ex1 range x 23.73 23.78 y -0.01 0.01 z 19.65 19.67
-            sw.WriteLine("SEL LINERSEL cid   {0} id   {1}  ele DKT_CST  nodes  {2} {3} {4}", eleId, SelId, node1, node2, node3) ' 大致的结构为：SEL SHELLSEL cid    68341 id    68341 ele DKT_CST  nodes  1 2 3
-            listLinerNode.Add(node1)
-            listLinerNode.Add(node2)
-            listLinerNode.Add(node3)
+            '而且即使用"SEL NODE INIT XPOS ADD 0.0"来创建Node-Zone link，此单元上也只有一面会与Zone之间有link
+            'sw.WriteLine("SEL LINERSEL cid   {0} id   {1}  ele DKT_CST  nodes  {2} {3} {4}", eleId, SelId, node1, node2, node3) ' 大致的结构为：SEL SHELLSEL cid    68341 id    68341 ele DKT_CST  nodes  1 2 3
+
             '读取下一个节点
             strLine = sr.ReadLine
             match = Regex.Match(strLine, pattern)
@@ -327,21 +371,34 @@ Public Class Hm2Structure
         Dim eleId As Long
         Dim node1 As Long, node2 As Long, node3 As Long, node4 As Long
         '
-        strLine = sr.ReadLine()  ' 大致的结构为： "        16,  10.0           ,  6.6666666666667,  0.0            "
+        strLine = sr.ReadLine()  ' S4 类型的信息在inp中，大致的结构为： " 102038,    107275,    105703,    105704,    104375 "
         Dim match As Match, groups As GroupCollection
         match = Regex.Match(strLine, pattern)
         Do While match.Success
             groups = match.Groups
-            eleId = groups(1).Value
+            eleId = groups(1).Value  ' 在 inp 中 S4 单元的id号，但是这个单元并不用来创建Flac中的 liner 单元，而是利用其四个节点来创建liner 单元。
             node1 = groups(2).Value
             node2 = groups(3).Value
             node3 = groups(4).Value
             node4 = groups(5).Value
+
+            ' 获取此四个节点所形成的共面四边形的形心点
+            Dim centroid As XYZ = Hm2Flac3DHandler.FindCentroid(_allNodes(node1), _allNodes(node2), _allNodes(node3), _allNodes(node4))
+
+            Dim range As String = Hm2Flac3DHandler.ExtendCentroid(centroid)
+
+            ' 创建与两面都有与 zone 的接触的 Liner 单元
+            ' Sel Liner  id 1 em group ex1 range x 23.73 23.78 y -0.01 0.01 z 19.65 19.67
+            sw.WriteLine("Sel Liner id {0} em group {1} {2}", SelId, groupName, range)
+
             '下面这一条语句所创建的Liner，它并不会与其周围的Zone之间建立 Node-to-Zone links.
-            sw.WriteLine("SEL LINERSEL cid   {0} id   {1}  ele DKT_CST  nodes  {2} {3} {4}", eleId, SelId, node1, node2, node3) ' 大致的结构为：SEL SHELLSEL cid    68341 id    68341 ele DKT_CST  nodes  1 2 3
-            listLinerNode.Add(node1)
-            listLinerNode.Add(node2)
-            listLinerNode.Add(node3)
+            '而且即使用"SEL NODE INIT XPOS ADD 0.0"来创建Node-Zone link，此单元上也只有一面会与Zone之间有link
+            'sw.WriteLine("SEL LINERSEL cid   {0} id   {1}  ele DKT_CST  nodes  {2} {3} {4}", eleId, SelId, node1, node2, node3) ' 大致的结构为：SEL SHELLSEL cid    68341 id    68341 ele DKT_CST  nodes  1 2 3
+
+            'Debug.Print(_allNodes(node1).ToString() & _allNodes(node2).ToString() &
+            '            _allNodes(node3).ToString() & _allNodes(node4).ToString() &
+            '            centroid.ToString())
+
             '读取下一个节点
             strLine = sr.ReadLine
             match = Regex.Match(strLine, pattern)
@@ -353,4 +410,5 @@ Public Class Hm2Structure
     End Function
 
 #End Region
+
 End Class

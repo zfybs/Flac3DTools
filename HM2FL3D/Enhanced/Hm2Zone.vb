@@ -10,6 +10,12 @@ Public Class Hm2Zone
     ''' <summary> 用来写入 Zone 单元的节点的那个文本。 </summary>
     Private sw_Zone As StreamWriter
 
+    ''' <summary>
+    '''  将用来创建 Liner 的 group 放在 Flac 中 编号为2及以上的 slot 中，以避免与其他的group产生干扰。
+    ''' </summary>
+    ''' <remarks> 如果不显式指定 slot，则 group 默认是放在 slot 1 中的。 </remarks>
+    Private linerGroupSlot As Integer = 2
+
 #End Region
 
     ''' <summary>
@@ -29,13 +35,12 @@ Public Class Hm2Zone
         Dim strHeading As String
         strHeading = " * --------------------------------------------------" & vbCrLf &
             " *  INP (exported from Hypermesh) to FLAC3D " & vbCrLf &
-            " *  Coded by Zengfanyun" & vbCrLf &
-            " *  Latest update time: 2016/6/27 " & vbCrLf &
+            " *  Coded by Zeng Fanyun. Email: 619086871@qq.com" & vbCrLf &
+            " *  Latest update time: 2016/6/28 " & vbCrLf &
             " * --------------------------------------------------" & vbCrLf &
             "* Generated time: " & DateTime.Today.ToString("yyyy/MM/dd") & "   " & DateTime.Now.ToShortTimeString & vbCrLf &
             vbCrLf & "* GRIDPOINTS"
         sw_Zone.WriteLine(strHeading)
-
 
     End Sub
 
@@ -173,7 +178,9 @@ Public Class Hm2Zone
         Loop
         '将此Component中的所有单元写入Flac3d中的一个组中
         sw_Zone.WriteLine("* GROUPS")
-        sw_Zone.WriteLine("ZGROUP " & groupName)
+        ' 将用来创建 Liner 的 group 放在 Flac 中 编号为2及以上的 slot 中，以避免与其他的group产生干扰。
+        sw_Zone.WriteLine("ZGROUP " & groupName & " SLOT " & linerGroupSlot)
+        linerGroupSlot += 1
         Dim num As Long
         For num = 0 To listEleId.Count - 1
             sw_Zone.Write("    " & listEleId(num))
