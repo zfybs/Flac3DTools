@@ -72,6 +72,66 @@ Public Class form_Hm2Flac3D
         TextBox_structuresInp.Enabled = True
         TextBox_zonesInp.Enabled = True
     End Sub
+
+    ' 文件路径的拖拽
+    Private Sub TextBox_zonesInp_DragEnter(sender As Object, e As DragEventArgs) Handles TextBox_zonesInp.DragEnter, TextBox_structuresInp.DragEnter
+        If e.Data.GetDataPresent(DataFormats.FileDrop) Then
+            ' There is text. Allow copy.
+            e.Effect = DragDropEffects.Copy
+        Else
+            ' There is no text. Prohibit drop.
+            e.Effect = DragDropEffects.None
+        End If
+
+    End Sub
+
+    Private Sub TextBox_zonesInp_DragDrop(sender As Object, e As DragEventArgs) Handles TextBox_zonesInp.DragDrop, TextBox_structuresInp.DragDrop
+        Dim txt As TextBox = DirectCast(sender, TextBox)
+        Dim FileDrop As String() = e.Data.GetData(DataFormats.FileDrop)
+        ' DoSomething with the Files or Directories that are droped in.
+        Dim filepath As String = FileDrop(0)
+        If String.Compare(Path.GetExtension(filepath), ".inp", ignoreCase:=True) = 0 Then
+            txt.Text = filepath
+        Else
+            txt.Text = "请确保文件后缀名为 .inp"
+        End If
+
+    End Sub
+
+    Private Sub ButtonChooseZones_Click(sender As Object, e As EventArgs) Handles ButtonChooseZones.Click, ButtonChooseStructures.Click
+        Dim btn As Button = DirectCast(sender, Button)
+        Dim path As String = ChooseInpFile("选择对应的 inp 文件")
+
+        ' 写入数据
+        If Not String.IsNullOrEmpty(path) Then
+            If btn.Name = ButtonChooseZones.Name Then
+                TextBox_zonesInp.Text = path
+            End If
+            If btn.Name = ButtonChooseStructures.Name Then
+                TextBox_structuresInp.Text = path
+            End If
+        End If
+    End Sub
+
+    ''' <summary> 通过选择文件对话框选择要进行数据提取的Excel文件 </summary>
+    ''' <returns> 要进行数据提取的Excel文件的绝对路径 </returns>
+    Public Shared Function ChooseInpFile(title As String) As String
+
+        Dim ofd As New OpenFileDialog()
+        With ofd
+            .Title = title
+            .CheckFileExists = True
+            .AddExtension = True
+            .Filter = "inp文件(*.inp)| *.inp"
+            .FilterIndex = 2
+            .Multiselect = False
+        End With
+
+        If ofd.ShowDialog() = DialogResult.OK Then
+            Return If(ofd.FileName.Length > 0, ofd.FileName, "")
+        End If
+        Return ""
+    End Function
 #End Region
 
 #Region "---    Liner 模式"
@@ -225,4 +285,5 @@ Public Class form_Hm2Flac3D
     End Sub
 
 #End Region
+
 End Class
