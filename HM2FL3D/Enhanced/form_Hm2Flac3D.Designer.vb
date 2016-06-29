@@ -57,7 +57,6 @@ Partial Class form_Hm2Flac3D
         Me.TextBox_zonesInp.Name = "TextBox_zonesInp"
         Me.TextBox_zonesInp.Size = New System.Drawing.Size(338, 21)
         Me.TextBox_zonesInp.TabIndex = 1
-        Me.TextBox_zonesInp.Text = "F:\ProgrammingCases\GitHubProjects\HM2FL3D\HM2FL3D\bin\Debug\zones.inp"
         '
         'TextBox_structuresInp
         '
@@ -68,7 +67,6 @@ Partial Class form_Hm2Flac3D
         Me.TextBox_structuresInp.Name = "TextBox_structuresInp"
         Me.TextBox_structuresInp.Size = New System.Drawing.Size(338, 21)
         Me.TextBox_structuresInp.TabIndex = 2
-        Me.TextBox_structuresInp.Text = "F:\ProgrammingCases\GitHubProjects\HM2FL3D\HM2FL3D\bin\Debug\structures.inp"
         '
         'Label1
         '
