@@ -26,6 +26,8 @@ Public Class form_Hm2Flac3D
         '
         ProgressBar1.MarqueeAnimationSpeed = 10
         ProgressBar1.Visible = False
+        '
+
     End Sub
 
     Private Sub form_Hm2Flac3D_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -93,7 +95,7 @@ Public Class form_Hm2Flac3D
         If String.Compare(Path.GetExtension(filepath), ".inp", ignoreCase:=True) = 0 Then
             txt.Text = filepath
         Else
-            txt.Text = "请确保文件后缀名为 .inp"
+            txt.Text = "请确保文件后缀名为"".inp"""
         End If
 
     End Sub
@@ -132,6 +134,13 @@ Public Class form_Hm2Flac3D
         End If
         Return ""
     End Function
+
+    Private Sub TextBox_zonesInp_Enter(sender As Object, e As EventArgs) Handles TextBox_zonesInp.MouseEnter, TextBox_structuresInp.MouseEnter
+        Dim txt = DirectCast(sender, TextBox)
+        txt.SelectAll()
+        txt.Focus()
+    End Sub
+
 #End Region
 
 #Region "---    Liner 模式"
@@ -178,34 +187,42 @@ Public Class form_Hm2Flac3D
     Private Function CheckZone() As Boolean
         Dim pathZ As String = TextBox_zonesInp.Text
 
-        ' 先生成土体的flac文件
-        If Not String.IsNullOrEmpty(pathZ) Then
-            If String.Compare(Path.GetExtension(pathZ), ".inp", ignoreCase:=True) <> 0 Then
-                MessageBox.Show("土体网格文件格式不对")
-                Return False
-            End If
-
-            If Not File.Exists(pathZ) <> 0 Then
-                MessageBox.Show("指定位置的土体网格文件不存在")
-                Return False
-            End If
-
+        If String.IsNullOrEmpty(pathZ) Then
+            Return False
         End If
+
+        If Not File.Exists(pathZ) <> 0 Then
+            _message.AppendLine("指定位置的土体网格文件不存在")
+            Return False
+        End If
+
+        ' 先生成土体的flac文件
+        If String.Compare(Path.GetExtension(pathZ), ".inp", ignoreCase:=True) <> 0 Then
+            _message.AppendLine("土体网格文件格式不对")
+            Return False
+        End If
+
+
         Return True
     End Function
     Private Function CheckSel() As Boolean
         Dim pathS As String = TextBox_structuresInp.Text
-        If Not String.IsNullOrEmpty(pathS) Then
-            If String.Compare(Path.GetExtension(pathS), ".inp", ignoreCase:=True) <> 0 Then
-                MessageBox.Show("结构网格文件格式不对")
-                Return False
-            End If
 
-            If Not File.Exists(pathS) <> 0 Then
-                MessageBox.Show("指定位置的结构网格文件不存在")
-                Return False
-            End If
+        If String.IsNullOrEmpty(pathS) Then
+            Return False
         End If
+
+        If Not File.Exists(pathS) <> 0 Then
+            _message.AppendLine("指定位置的结构网格文件不存在")
+            Return False
+        End If
+
+        If String.Compare(Path.GetExtension(pathS), ".inp", ignoreCase:=True) <> 0 Then
+            _message.AppendLine("结构网格文件格式不对")
+            Return False
+        End If
+
+
         Return True
     End Function
 

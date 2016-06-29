@@ -265,8 +265,7 @@ Public Class Hm2Structure
         SelId += 1
         Return strLine
     End Function
-
-
+    
     ''' <summary>
     ''' 根据共面的三个节点或者四个节点来生成三角形 Liner 单元，并返回跳出循环的字符串
     ''' </summary>
