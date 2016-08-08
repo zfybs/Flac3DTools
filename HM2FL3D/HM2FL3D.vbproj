@@ -6,8 +6,9 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{A3D45331-E506-4C6A-A960-422AA6058523}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <StartupObject>Hm2Flac3D.My.MyApplication</StartupObject>
-    <RootNamespace>Hm2Flac3D</RootNamespace>
+    <StartupObject>My.MyApplication</StartupObject>
+    <RootNamespace>
+    </RootNamespace>
     <AssemblyName>Hm2Flac3D</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>WindowsForms</MyType>
@@ -98,6 +99,9 @@
     </Compile>
     <Compile Include="Enhanced\Hm2Structure.vb" />
     <Compile Include="Enhanced\InpReader.vb" />
+    <Compile Include="Enhanced\ScrollableLabel.vb">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Hm2Flac3D.vb" />
     <Compile Include="Enhanced\Hm2Zone.vb" />
     <Compile Include="Hm2Flac3DHandler.vb" />

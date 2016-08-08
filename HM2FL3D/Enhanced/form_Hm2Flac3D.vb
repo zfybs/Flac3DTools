@@ -231,23 +231,36 @@ Public Class form_Hm2Flac3D
         Dim zoneTxt As String = Path.Combine((New FileInfo(pathZ)).DirectoryName, "zones.flac3d")
 
         ' 打开文本
-        Dim Fileinp As FileStream = File.Open(pathZ, FileMode.Open)
-        Dim Fileflc_Zone As FileStream = File.Create(zoneTxt)
-        Dim sr_inp = New StreamReader(Fileinp)
-        Dim sw_Zone = New StreamWriter(Fileflc_Zone)
+        Dim Fileinp As FileStream
+        Dim Fileflc_Zone As FileStream
+        Dim sr_inp As StreamReader
+        Dim sw_Zone As StreamWriter
 
+        Try
+            ' 打开文本
+            Fileinp = File.Open(pathZ, FileMode.Open)
+            Fileflc_Zone = File.Create(zoneTxt)
+            sr_inp = New StreamReader(Fileinp)
+            sw_Zone = New StreamWriter(Fileflc_Zone)
+            ''
+            Dim hmZone = New Hm2Zone(sr_inp, sw_Zone, _message)
+            hmZone.ReadFile()
+            '
+            _message.AppendLine("******** 土体网格数据提取完成 ********"+ vbCrLf+ vbCrLf)
 
-        ' --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        Dim hmZone = New Hm2Zone(sr_inp, sw_Zone, _message)
-        hmZone.ReadFile()
-        ' --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        Catch ex As Exception
+            _message.AppendLine(ex.Message)
+            _message.AppendLine("******** 土体网格数据提取失败 ********"+ vbCrLf+ vbCrLf)
 
-        '操作完成后关闭资源
-        sr_inp.Close()
-        sw_Zone.Close()
-        Fileinp.Close()
-        Fileflc_Zone.Close()
-        _message.AppendLine("******** 土体网格数据提取完成 ********")
+        Finally
+
+            '操作完成后关闭资源
+            If sr_inp IsNot Nothing Then sr_inp.Close()
+            If sw_Zone IsNot Nothing Then sw_Zone.Close()
+            If Fileinp IsNot Nothing Then Fileinp.Close()
+            If Fileflc_Zone IsNot Nothing Then Fileflc_Zone.Close()
+
+        End Try
 
     End Sub
 
@@ -255,24 +268,38 @@ Public Class form_Hm2Flac3D
         Dim selTxt As String = Path.Combine((New FileInfo(pathS)).DirectoryName, "structures.dat")
 
         ' 打开文本
-        Dim Fileinp As FileStream = File.Open(pathS, FileMode.Open)
-        Dim Fileflc_Sel As FileStream = File.Create(selTxt)
-        Dim sr_inp = New StreamReader(Fileinp)
-        Dim sw_Sel = New StreamWriter(Fileflc_Sel)
+
+        Dim Fileinp As FileStream
+        Dim Fileflc_Sel As FileStream
+        Dim sr_inp As StreamReader
+        Dim sw_Sel As StreamWriter
 
 
-        ' --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        Dim hmSel = New Hm2Structure(sr_inp, sw_Sel, _message)
-        hmSel.ReadFile()
-        ' --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        Try
+            Fileinp = File.Open(pathS, FileMode.Open)
+            Fileflc_Sel = File.Create(selTxt)
+            sr_inp = New StreamReader(Fileinp)
+            sw_Sel = New StreamWriter(Fileflc_Sel)
+            ''
+            Dim hmSel = New Hm2Structure(sr_inp, sw_Sel, _message)
+            hmSel.ReadFile()
+            '
+            _message.AppendLine("******** 结构网格数据提取完成 ********" + vbCrLf + vbCrLf)
 
-        '操作完成后关闭资源
-        sr_inp.Close()
-        sw_Sel.Close()
-        Fileinp.Close()
-        Fileflc_Sel.Close()
-        _message.AppendLine("******** 结构网格数据提取完成 ********")
+        Catch ex As Exception
 
+            _message.AppendLine(ex.Message)
+            _message.AppendLine("******** 结构网格数据提取失败 ********"+ vbCrLf + vbCrLf)
+
+        Finally
+
+            '操作完成后关闭资源
+            If sr_inp IsNot Nothing Then sr_inp.Close()
+            If sw_Sel IsNot Nothing Then sw_Sel.Close()
+            If Fileinp IsNot Nothing Then Fileinp.Close()
+            If Fileflc_Sel IsNot Nothing Then Fileflc_Sel.Close()
+
+        End Try
     End Sub
 
     Private Sub worker_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles worker.RunWorkerCompleted
@@ -299,6 +326,10 @@ Public Class form_Hm2Flac3D
 
         ' 一般情况下，当控制台被手动点击关闭（而不是通过 FreeConsole 来释放控制台）后，整个程序的进程就结束了，这里为了保险起见，再强制关闭一下。
         Me.Close()
+    End Sub
+
+    Private Sub LabelHello_Click(sender As Object, e As EventArgs) Handles LabelHello.Click
+
     End Sub
 
 #End Region

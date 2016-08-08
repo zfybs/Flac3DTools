@@ -1,9 +1,11 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+﻿Imports System.Windows.Forms
+
+<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class form_Hm2Flac3D
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()> _
+    <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -20,7 +22,7 @@ Partial Class form_Hm2Flac3D
     'NOTE: The following procedure is required by the Windows Form Designer
     'It can be modified using the Windows Form Designer.  
     'Do not modify it using the code editor.
-    <System.Diagnostics.DebuggerStepThrough()> _
+    <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(form_Hm2Flac3D))
@@ -31,7 +33,7 @@ Partial Class form_Hm2Flac3D
         Me.Label2 = New System.Windows.Forms.Label()
         Me.ButtonChooseZones = New System.Windows.Forms.Button()
         Me.ButtonChooseStructures = New System.Windows.Forms.Button()
-        Me.LabelHello = New System.Windows.Forms.Label()
+        Me.LabelHello = New System.Windows.Forms.TextBox()
         Me.ProgressBar1 = New System.Windows.Forms.ProgressBar()
         Me.ButtonClose = New System.Windows.Forms.Button()
         Me.ButtonNoLiner = New System.Windows.Forms.Button()
@@ -41,7 +43,7 @@ Partial Class form_Hm2Flac3D
         'buttonTransForm
         '
         Me.buttonTransForm.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right),System.Windows.Forms.AnchorStyles)
-        Me.buttonTransForm.Location = New System.Drawing.Point(356, 270)
+        Me.buttonTransForm.Location = New System.Drawing.Point(390, 270)
         Me.buttonTransForm.Name = "buttonTransForm"
         Me.buttonTransForm.Size = New System.Drawing.Size(75, 23)
         Me.buttonTransForm.TabIndex = 0
@@ -55,7 +57,7 @@ Partial Class form_Hm2Flac3D
             Or System.Windows.Forms.AnchorStyles.Right),System.Windows.Forms.AnchorStyles)
         Me.TextBox_zonesInp.Location = New System.Drawing.Point(11, 189)
         Me.TextBox_zonesInp.Name = "TextBox_zonesInp"
-        Me.TextBox_zonesInp.Size = New System.Drawing.Size(338, 21)
+        Me.TextBox_zonesInp.Size = New System.Drawing.Size(372, 21)
         Me.TextBox_zonesInp.TabIndex = 1
         '
         'TextBox_structuresInp
@@ -65,7 +67,7 @@ Partial Class form_Hm2Flac3D
             Or System.Windows.Forms.AnchorStyles.Right),System.Windows.Forms.AnchorStyles)
         Me.TextBox_structuresInp.Location = New System.Drawing.Point(12, 237)
         Me.TextBox_structuresInp.Name = "TextBox_structuresInp"
-        Me.TextBox_structuresInp.Size = New System.Drawing.Size(338, 21)
+        Me.TextBox_structuresInp.Size = New System.Drawing.Size(372, 21)
         Me.TextBox_structuresInp.TabIndex = 2
         '
         'Label1
@@ -91,7 +93,7 @@ Partial Class form_Hm2Flac3D
         'ButtonChooseZones
         '
         Me.ButtonChooseZones.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right),System.Windows.Forms.AnchorStyles)
-        Me.ButtonChooseZones.Location = New System.Drawing.Point(355, 190)
+        Me.ButtonChooseZones.Location = New System.Drawing.Point(389, 190)
         Me.ButtonChooseZones.Name = "ButtonChooseZones"
         Me.ButtonChooseZones.Size = New System.Drawing.Size(75, 23)
         Me.ButtonChooseZones.TabIndex = 1
@@ -101,7 +103,7 @@ Partial Class form_Hm2Flac3D
         'ButtonChooseStructures
         '
         Me.ButtonChooseStructures.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right),System.Windows.Forms.AnchorStyles)
-        Me.ButtonChooseStructures.Location = New System.Drawing.Point(355, 235)
+        Me.ButtonChooseStructures.Location = New System.Drawing.Point(389, 235)
         Me.ButtonChooseStructures.Name = "ButtonChooseStructures"
         Me.ButtonChooseStructures.Size = New System.Drawing.Size(75, 23)
         Me.ButtonChooseStructures.TabIndex = 2
@@ -114,10 +116,16 @@ Partial Class form_Hm2Flac3D
             Or System.Windows.Forms.AnchorStyles.Left)  _
             Or System.Windows.Forms.AnchorStyles.Right),System.Windows.Forms.AnchorStyles)
         Me.LabelHello.BackColor = System.Drawing.Color.FromArgb(CType(CType(224,Byte),Integer), CType(CType(224,Byte),Integer), CType(CType(224,Byte),Integer))
+        Me.LabelHello.Cursor = System.Windows.Forms.Cursors.Default
         Me.LabelHello.Location = New System.Drawing.Point(9, 9)
+        Me.LabelHello.Multiline = true
         Me.LabelHello.Name = "LabelHello"
-        Me.LabelHello.Size = New System.Drawing.Size(421, 150)
+        Me.LabelHello.ReadOnly = true
+        Me.LabelHello.ScrollBars = System.Windows.Forms.ScrollBars.Both
+        Me.LabelHello.ShortcutsEnabled = false
+        Me.LabelHello.Size = New System.Drawing.Size(455, 150)
         Me.LabelHello.TabIndex = 3
+        Me.LabelHello.TabStop = false
         Me.LabelHello.Text = "******** CONVERT INP CODE(IMPORTED FROM HYPERMESH) TO FLAC3D ********"
         '
         'ProgressBar1
@@ -125,14 +133,14 @@ Partial Class form_Hm2Flac3D
         Me.ProgressBar1.Dock = System.Windows.Forms.DockStyle.Bottom
         Me.ProgressBar1.Location = New System.Drawing.Point(0, 301)
         Me.ProgressBar1.Name = "ProgressBar1"
-        Me.ProgressBar1.Size = New System.Drawing.Size(443, 10)
+        Me.ProgressBar1.Size = New System.Drawing.Size(477, 10)
         Me.ProgressBar1.Style = System.Windows.Forms.ProgressBarStyle.Marquee
         Me.ProgressBar1.TabIndex = 4
         '
         'ButtonClose
         '
         Me.ButtonClose.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right),System.Windows.Forms.AnchorStyles)
-        Me.ButtonClose.Location = New System.Drawing.Point(274, 270)
+        Me.ButtonClose.Location = New System.Drawing.Point(308, 270)
         Me.ButtonClose.Name = "ButtonClose"
         Me.ButtonClose.Size = New System.Drawing.Size(75, 23)
         Me.ButtonClose.TabIndex = 5
@@ -155,7 +163,7 @@ Partial Class form_Hm2Flac3D
         Me.AcceptButton = Me.buttonTransForm
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6!, 12!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(443, 311)
+        Me.ClientSize = New System.Drawing.Size(477, 311)
         Me.Controls.Add(Me.ButtonNoLiner)
         Me.Controls.Add(Me.ProgressBar1)
         Me.Controls.Add(Me.Label2)
@@ -185,7 +193,7 @@ End Sub
     Friend WithEvents Label2 As Windows.Forms.Label
     Friend WithEvents ButtonChooseZones As Windows.Forms.Button
     Friend WithEvents ButtonChooseStructures As Windows.Forms.Button
-    Friend WithEvents LabelHello As Windows.Forms.Label
+    Friend WithEvents LabelHello As Windows.Forms.TextBox
     Friend WithEvents ProgressBar1 As System.Windows.Forms.ProgressBar
     Friend WithEvents ButtonClose As System.Windows.Forms.Button
     Friend WithEvents ButtonNoLiner As System.Windows.Forms.Button
