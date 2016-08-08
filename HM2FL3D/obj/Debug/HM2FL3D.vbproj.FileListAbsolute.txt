@@ -15,9 +15,7 @@ F:\ProgrammingCases\GitHubProjects\HM2FL3D\HM2FL3D\obj\Debug\Hm2Flac3D.pdb
 F:\ProgrammingCases\GitHubProjects\HM2FL3D\HM2FL3D\bin\Debug\Hm2Flac3D.exe
 F:\ProgrammingCases\GitHubProjects\HM2FL3D\HM2FL3D\bin\Debug\Hm2Flac3D.pdb
 F:\ProgrammingCases\GitHubProjects\HM2FL3D\HM2FL3D\bin\Debug\Hm2Flac3D.xml
-F:\ProgrammingCases\GitHubProjects\HM2FL3D\HM2FL3D\obj\Debug\Hm2Flac3D.Resources.resources
 F:\ProgrammingCases\GitHubProjects\HM2FL3D\HM2FL3D\obj\Debug\HM2FL3D.vbproj.GenerateResource.Cache
-F:\ProgrammingCases\GitHubProjects\HM2FL3D\HM2FL3D\obj\Debug\Hm2Flac3D.form_Hm2Flac3D.resources
 F:\Documents\A软件学习\!编程\zengfy 解决代码与问题整理\编程测试\GitHubProjects\HM2FL3D\HM2FL3D\bin\Debug\Hm2Flac3D.exe.config
 F:\Documents\A软件学习\!编程\zengfy 解决代码与问题整理\编程测试\GitHubProjects\HM2FL3D\HM2FL3D\obj\Debug\Hm2Flac3D.exe
 F:\Documents\A软件学习\!编程\zengfy 解决代码与问题整理\编程测试\GitHubProjects\HM2FL3D\HM2FL3D\obj\Debug\Hm2Flac3D.xml
@@ -30,3 +28,5 @@ F:\Documents\A软件学习\!编程\zengfy 解决代码与问题整理\编程测�
 F:\Documents\A软件学习\!编程\zengfy 解决代码与问题整理\编程测试\GitHubProjects\HM2FL3D\HM2FL3D\obj\Debug\Hm2Flac3D.Resources.resources
 F:\Documents\A软件学习\!编程\zengfy 解决代码与问题整理\编程测试\GitHubProjects\HM2FL3D\HM2FL3D\obj\Debug\HM2FL3D.vbproj.GenerateResource.Cache
 F:\ProgrammingCases\GitHubProjects\HM2FL3D\HM2FL3D\obj\Debug\HM2FL3D.vbprojResolveAssemblyReference.cache
+F:\ProgrammingCases\GitHubProjects\HM2FL3D\HM2FL3D\obj\Debug\form_Hm2Flac3D.resources
+F:\ProgrammingCases\GitHubProjects\HM2FL3D\HM2FL3D\obj\Debug\Resources.resources
