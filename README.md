@@ -1,23 +1,11 @@
 # HM2FL3D   ![image](https://github.com/zfybs/HM2FL3D/blob/master/HM2FL3D/Pictures/Hm2Flac3D_64.png)
 将Hypermesh风格输出的inp文件转换为Flac3D的风格。 CONVERT INP CODE(EXPORTED FROM HYPERMESH) TO FLAC3D
 
-[TOC]
-
 ****************
 
 #一、 Hypermesh to Flac3d 转换规则
  __注意：一个Component中可以有多种要输出的单元类型，在Hypermesh转换为Inp格式时，Hypermesh会自动将同一个Component中的不同单元类型进行分组。__
 
- | Flac3d中的单元类型    | 在Hypermesh文件中的判断规则 | 
-|-----------------------|:---------------:| 
-|Beam（两个节点）|单元类型为“B31*”或“B21”，而且Component名称以“beam”开头（不区分大小写）|
-|Pile（两个节点）|单元类型为“B31”或“B21”，而且Component名称以“pile”开头（不区分大小写）|
-|六面体8节点Zone单元|单元类型指定为“C3D8”开头，比如“C3D8R”|
-|五面体6节点（三棱柱）Zone单元|单元类型指定为“C3D6”开头，比如“C3D6R”|
-|四面体4节点Zone单元|单元类型指定为“C3D4”开头，比如“C3D4R”|
-|Shell（三角形单元）|单元类型以“S3”开头，而且Component名称以“shell”开头（不区分大小写）|
-|Liner（三角形单元）|单元类型以“S3”或者“S4”开头，而且Component名称以“liner-附着组”开头（不区分大小写）注意Liner单元周围的Zone的网格尺寸的值不能小球0.001（当模型以m为单位时，即不能小于1 mm）。|
- * B31 and B21 are both 2-node linear beams，where B21 is used in a plane with 3 degrees of freedom:1, 2, 6, while B31 is used in a space, with 6 degrees of freedom: 1, 2, 3, 4, 5, 6.
 ![image](https://github.com/zfybs/HM2FL3D/blob/master/HM2FL3D/Pictures/HM2Flac3D转换规则.png) 
 
 
