@@ -180,7 +180,6 @@ Partial Class form_Hm2Flac3D
         Me.Name = "form_Hm2Flac3D"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "form_Hm2Flac3D"
-        Me.TopMost = true
         Me.ResumeLayout(false)
         Me.PerformLayout
 

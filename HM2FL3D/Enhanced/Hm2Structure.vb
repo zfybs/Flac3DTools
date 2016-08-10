@@ -302,9 +302,8 @@ Public Class Hm2Structure
             End If
         Else
             _message.AppendLine("无法识别要将 Liner 单元创建在哪一个 group 上。 对应的Component名称为" & componentName)
-            Return strLine
         End If
-
+            Return strLine
     End Function
 
     ''' <summary>

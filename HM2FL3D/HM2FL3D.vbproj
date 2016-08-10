@@ -99,9 +99,6 @@
     </Compile>
     <Compile Include="Enhanced\Hm2Structure.vb" />
     <Compile Include="Enhanced\InpReader.vb" />
-    <Compile Include="Enhanced\ScrollableLabel.vb">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Hm2Flac3D.vb" />
     <Compile Include="Enhanced\Hm2Zone.vb" />
     <Compile Include="Hm2Flac3DHandler.vb" />

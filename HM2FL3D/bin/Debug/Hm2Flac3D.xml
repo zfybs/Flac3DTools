@@ -515,7 +515,7 @@ Hm2Flac3D
  <param name="node2"> 矢量的终点 </param>
  <returns> 一个空间矢量，起始点为 node1，终点为 node2 </returns>
 </member>
-<member name="M:XYZ.Scale(System.Double)">
+<member name="M:XYZ.SetLength(System.Double)">
  <summary>
  将一个空间矢量缩放到指定的长度（方向不变）
  </summary>

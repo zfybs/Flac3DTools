@@ -53,7 +53,7 @@ Public Class XYZ
     ''' </summary>
     ''' <param name="newLength">缩放后的长度</param>
     ''' <returns> 缩放后的新矢量 </returns>
-    Public Function Scale(newLength As Double) As XYZ
+    Public Function SetLength(newLength As Double) As XYZ
         Dim ratio As Double = newLength / Me.Length()
         Return New XYZ(X * ratio, Y * ratio, Z * ratio)
     End Function

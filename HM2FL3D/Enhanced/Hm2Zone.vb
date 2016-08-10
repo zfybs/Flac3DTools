@@ -36,7 +36,7 @@ Public Class Hm2Zone
         strHeading = " * --------------------------------------------------" & vbCrLf &
             " *  INP (exported from Hypermesh) to FLAC3D " & vbCrLf &
             " *  Coded by Zeng Fanyun. Email: 619086871@qq.com" & vbCrLf &
-            " *  Latest update time: 2016/6/28 " & vbCrLf &
+            " *  Latest update time: 2016/8/9 " & vbCrLf &
             " * --------------------------------------------------" & vbCrLf &
             "* Generated time: " & DateTime.Today.ToString("yyyy/MM/dd") & "   " & DateTime.Now.ToShortTimeString & vbCrLf &
             vbCrLf & "* GRIDPOINTS"
