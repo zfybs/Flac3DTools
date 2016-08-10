@@ -104,7 +104,7 @@ Public Class Hm2Flac3DHandler
         ' 利用杠杆原理计算两个三角形的组合四边形形心位置：area1 * x=area2 * (centDis-x)
         Dim x As Double = centDis / (area1 / area2 + 1)  ' 四边形的形心点处在两个三角形的形心连线上，x 为四边形的形心点到第1个三角形形心的距离。
 
-        Return c1.Move(c1.VectorTo(c2).Scale(x))
+        Return c1.Move(c1.VectorTo(c2).SetLength(x))
 
     End Function
 
