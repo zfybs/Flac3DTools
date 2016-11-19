@@ -1,0 +1,10 @@
+F:\ProgrammingCases\GitHubProjects\HM2FL3D\ExtractFlac3dResult\bin\x64\Debug\ExtractFlac3dResult.exe.config
+F:\ProgrammingCases\GitHubProjects\HM2FL3D\ExtractFlac3dResult\bin\x64\Debug\ExtractFlac3dResult.exe
+F:\ProgrammingCases\GitHubProjects\HM2FL3D\ExtractFlac3dResult\bin\x64\Debug\ExtractFlac3dResult.pdb
+F:\ProgrammingCases\GitHubProjects\HM2FL3D\ExtractFlac3dResult\bin\x64\Debug\ExtractFlac3dResult.xml
+F:\ProgrammingCases\GitHubProjects\HM2FL3D\ExtractFlac3dResult\obj\x64\Debug\ExtractFlac3dResult.vbproj.ResolveComReference.cache
+F:\ProgrammingCases\GitHubProjects\HM2FL3D\ExtractFlac3dResult\obj\x64\Debug\ExtractFlac3dResult.Resources.resources
+F:\ProgrammingCases\GitHubProjects\HM2FL3D\ExtractFlac3dResult\obj\x64\Debug\ExtractFlac3dResult.vbproj.GenerateResource.Cache
+F:\ProgrammingCases\GitHubProjects\HM2FL3D\ExtractFlac3dResult\obj\x64\Debug\ExtractFlac3dResult.exe
+F:\ProgrammingCases\GitHubProjects\HM2FL3D\ExtractFlac3dResult\obj\x64\Debug\ExtractFlac3dResult.xml
+F:\ProgrammingCases\GitHubProjects\HM2FL3D\ExtractFlac3dResult\obj\x64\Debug\ExtractFlac3dResult.pdb

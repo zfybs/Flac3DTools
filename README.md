@@ -19,17 +19,18 @@ Sel Liner id 1 em Group ex1 Range x= (23.73, 23.78) y =( -0.01, 0.01)  z= ( 19.6
 ##2.2 Element Set 与对应的 Liner Component的命名规范
 Element Set 与对应的 Liner Component的命名规范如下：
 -	Element Set必须以“GLiner”开头，而且名称中不能包含“-”。比如“GLiner”、“GLiner_Zone”都是可以的；
--	Liner Component的名称必须以“Liner-附着组名”开头，更多的名称信息可以在组名后用“-”进行分隔。比如当其要附着到组GLiner中时，“Liner-GLinerLeft”、“Liner-GLiner-Left”都是可以的，但是“Liner-GLinerLeft”会将此Liner单元附着到组“GLinerLeft”中，但是如果Flac3D中并没有创建一个组“GLinerLeft”的话，自然是会出现异常的。
-   ![image](https://github.com/zfybs/HM2FL3D/blob/master/HM2FL3D/Pictures/LinerSet.png) ![image](https://github.com/zfybs/HM2FL3D/blob/master/HM2FL3D/Pictures/LinerComponent.png) 
+-	Liner Component的名称必须以“Liner-附着组名”开头，更多的名称信息可以在组名后用“-”进行分隔。比如当其要附着到组GLiner中时，“Liner-GLinerLeft”、“Liner-GLiner-Left”都是可以的，但是“Liner-GLinerLe![image](https://github.com/zfybs/HM2FL3D/blob/master/HM2FL3D/Pictures/LinerSet.png) ![image](https://github.com/zfybs/HM2FL3D/blob/master/HM2FL3D/Pictures/LinerComponent.png) 
+
 图1 Hypermesh中与Liner 的创建相关的Set 与 Component 的命名示例
 
 
 ##2.3 inp 导出 S4 的规则
-Hypermesh中S3或者S4单元的输出到inp文件中的节点顺序（通过 Hypermesh 中的 2D面板 > Edit element > Create来进行创建单元的测试）：
-1. 绕边界环线进行编号；
-2. 如果创建S4单元时是按边界环线点击节点，则inp中的节点顺序与创建时点击的节点顺序一致；
-3. 如果创建S4单元时并不是按边界环线点击节点，在Hypermesh中自动将第3、4个节点顺序进行调整，以将其重排为边界环路的顺序，而不改变前面的两个节点顺序。
-4. 对于异型的S4单元（比如箭头形这种有凹角的），不论节点点击顺序如何，在Hypermesh中都会确保其在inp中的顺序形成一个边界环路,但是要注意，这种四边形网格是有错误的，在计算时肯定会出现异常。
+  Hypermesh中S3或者S4单元的输出到inp文件中的节点顺序（通过 Hypermesh 中的 2D面板 > Edit element > Create来进行创建单元的测试）：
+  
+1.	绕边界环线进行编号；
+2.	如果创建S4单元时是按边界环线点击节点，则inp中的节点顺序与创建时点击的节点顺序一致；
+3.	如果创建S4单元时并不是按边界环线点击节点，在Hypermesh中自动将第3、4个节点顺序进行调整，以将其重排为边界环路的顺序，而不改变前面的两个节点顺序。
+4.	对于异型的S4单元（比如箭头形这种有凹角的），不论节点点击顺序如何，在Hypermesh中都会确保其在inp中的顺序形成一个边界环路,但是要注意，这种四边形网格是有错误的，在计算时肯定会出现异常。
 
 #三、 使用说明
 ##3.1 使用流程
@@ -42,18 +43,21 @@ Hypermesh中S3或者S4单元的输出到inp文件中的节点顺序（通过 Hyp
 
 ##3.2 注意事项
 ###3.2.1 将zones单元与结构单元分开导出
-在Hypermesh中进行网格导出时，建议将Zone单元与结构单元分开来导出和转换。如果将土体单元与结构单元同时导出并转换时，本程序并不会报错，导出的网格也不会有问题，__但是，zones.flac3d文件中的grid数目可能会多于所有的zone单元所用到的grid，同样地，structures.dat文件中的node的数目可能会多于所有的结构单元所用到的node。另外，如果将土体单元与结构单元同时导出，在将模型导入到Flac中时也看不出很明显的问题，但是在此模型中创建Liner单元时，可能会很慢，最终计算结果也会有问题__。
+  在Hypermesh中进行网格导出时，建议将Zone单元与结构单元分开来导出和转换。如果将土体单元与结构单元同时导出并转换时，本程序并不会报错，导出的网格也不会有问题，__但是，zones.flac3d文件中的grid数目可能会多于所有的zone单元所用到的grid，同样地，structures.dat文件中的node的数目可能会多于所有的结构单元所用到的node。另外，如果将土体单元与结构单元同时导出，在将模型导入到Flac中时也看不出很明显的问题，但是在此模型中创建Liner单元时，可能会很慢，最终计算结果也会有问题__。
+
 ###3.2.2 在Hypermesh中调整节点的编号（推理未测试）
 在通过如下语句生成Liner时，Flac3D会自动为生成出来的Liner单元的每一个Node分配节点编号。为了避免Node的编号的冲突，在分配节点时会对当前模型中已经存在的nodes集合的编号进行搜索（猜测会在内存中保存一个SortedSet<UInt64> 的集合）。
+
 Sel Liner id 1 em Group ex1 Range x= (23.73, 23.78) y =( -0.01, 0.01)  z= ( 19.65, 19.67)
-比如在生成Liner之前，Flac3D模型中的节点（不论结构单元还是实体单元）已经占据了编号1~5000，则在“Sel Liner …”时，就必须要从1开始搜索可用的节点编号，这样的遍历与Contains()的判断会降低一定的计算效率，而且已有的节点越多，这种搜索就越费时。
+
+ 比如在生成Liner之前，Flac3D模型中的节点（不论结构单元还是实体单元）已经占据了编号1~5000，则在“Sel Liner …”时，就必须要从1开始搜索可用的节点编号，这样的遍历与Contains()的判断会降低一定的计算效率，而且已有的节点越多，这种搜索就越费时。
 最后的结论就是：建议用户自行在Hypermesh中去调整网格节点的编号，使Hypermesh中的 nodes.MinmumId > nodes.Count。
 
 ###3.2.3 C3D8类型的单元
-对于六面体八节点单元，其在inp文件中的最后一个节点是写在第二行的。如果从hypermesh中导出的inp文件中。C3D8类型的最后一个节点不是写在第二行，则此程序不会导出这些单元。
+  对于六面体八节点单元，其在inp文件中的最后一个节点是写在第二行的。如果从hypermesh中导出的inp文件中。C3D8类型的最后一个节点不是写在第二行，则此程序不会导出这些单元。
 ![image](https://github.com/zfybs/HM2FL3D/blob/master/HM2FL3D/Pictures/inp文件中C3D8类型节点格式.png) 
 
 ###3.2.4 单元法向
-对于三维网格单元，其在Hypermesh中的法向（Normal）并不要求一致。
+  对于三维网格单元，其在Hypermesh中的法向（Normal）并不要求一致。
 ###3.2.5 Merge的问题
 对于 Hm2Flac3D 或者 Ansys 导出的网格，虽然在Hypermesh中已经用Equivilance进行了节点合并，但是在Flac3D中进行Solve时，还是有极小的可能会报出“Zero stiffness in grid-point 18545” 这种错误。此时可能并不是土体单元未被赋上材料属性，而是需要对初始网格在Flac3D中再进行一次合并（用 gen merge 0.1），然后就可以正常计算了。
