@@ -1,4 +1,4 @@
-# HM2FL3D   ![image](https://github.com/zfybs/HM2FL3D/blob/master/HM2FL3D/Pictures/Hm2Flac3D_64.png)
+# HM2FL3D   ![image](https://github.com/zfybs/Flac3DTools/blob/master/HM2FL3D/Pictures/Hm2Flac3D_64.png)
 将Hypermesh风格输出的inp文件转换为Flac3D的风格。 CONVERT INP CODE(EXPORTED FROM HYPERMESH) TO FLAC3D
 
 ****************
@@ -6,7 +6,7 @@
 #一、 Hypermesh to Flac3d 转换规则
  __注意：一个Component中可以有多种要输出的单元类型，在Hypermesh转换为Inp格式时，Hypermesh会自动将同一个Component中的不同单元类型进行分组。__
 
-![image](https://github.com/zfybs/HM2FL3D/blob/master/HM2FL3D/Pictures/HM2Flac3D转换规则.png) 
+![image](https://github.com/zfybs/Flac3DTools/blob/master/HM2FL3D/Pictures/HM2Flac3D转换规则.png) 
 
 
 #二、 Liner 单元的转换说明
@@ -19,7 +19,7 @@ Sel Liner id 1 em Group ex1 Range x= (23.73, 23.78) y =( -0.01, 0.01)  z= ( 19.6
 ##2.2 Element Set 与对应的 Liner Component的命名规范
 Element Set 与对应的 Liner Component的命名规范如下：
 -	Element Set必须以“GLiner”开头，而且名称中不能包含“-”。比如“GLiner”、“GLiner_Zone”都是可以的；
--	Liner Component的名称必须以“Liner-附着组名”开头，更多的名称信息可以在组名后用“-”进行分隔。比如当其要附着到组GLiner中时，“Liner-GLinerLeft”、“Liner-GLiner-Left”都是可以的，但是“Liner-GLinerLe![image](https://github.com/zfybs/HM2FL3D/blob/master/HM2FL3D/Pictures/LinerSet.png) ![image](https://github.com/zfybs/HM2FL3D/blob/master/HM2FL3D/Pictures/LinerComponent.png) 
+-	Liner Component的名称必须以“Liner-附着组名”开头，更多的名称信息可以在组名后用“-”进行分隔。比如当其要附着到组GLiner中时，“Liner-GLinerLeft”、“Liner-GLiner-Left”都是可以的，但是“Liner-GLinerLe![image](https://github.com/zfybs/Flac3DTools/blob/master/HM2FL3D/Pictures/LinerSet.png) ![image](https://github.com/zfybs/Flac3DTools/blob/master/HM2FL3D/Pictures/LinerComponent.png) 
 
 图1 Hypermesh中与Liner 的创建相关的Set 与 Component 的命名示例
 
@@ -36,7 +36,7 @@ Element Set 与对应的 Liner Component的命名规范如下：
 ##3.1 使用流程
 
 1.	在Hypermesh中绘制好土体与结构（桩、支撑、地下连续墙）的网格。注意在有地下连续墙的位置，一定要将墙体左右的Zone单元用Hypermesh中Detach分隔开来；
-2.	先将三维土体单元导出为Abaqus的inp文件；再将一维与二维的结构单元导出为Abaqus的inp文件。注意导出时只将要导出的单元显示出来，然后选择“Displayed模式” ![image](https://github.com/zfybs/HM2FL3D/blob/master/HM2FL3D/Pictures/Export.png)  ；
+2.	先将三维土体单元导出为Abaqus的inp文件；再将一维与二维的结构单元导出为Abaqus的inp文件。注意导出时只将要导出的单元显示出来，然后选择“Displayed模式” ![image](https://github.com/zfybs/Flac3DTools/blob/master/HM2FL3D/Pictures/Export.png)  ；
 3.	分别将上面两个inp文件用本Hm2Flac3D程序将网格转换为Zones.Flac3D的土体网格与structures.dat的结构单元网格，生成的文本文件会保存在与对应的inp文件相同的文件夹内。
 4.	在Flac3d中，先用“import zones.Flac3D”导入土体网格，再用“Call structures.dat”导入结构单元，注意导入的先后顺序；
 5.	开始在Flac3D中进行设置与计算。Enjoy it!
@@ -55,7 +55,7 @@ Sel Liner id 1 em Group ex1 Range x= (23.73, 23.78) y =( -0.01, 0.01)  z= ( 19.6
 
 ###3.2.3 C3D8类型的单元
   对于六面体八节点单元，其在inp文件中的最后一个节点是写在第二行的。如果从hypermesh中导出的inp文件中。C3D8类型的最后一个节点不是写在第二行，则此程序不会导出这些单元。
-![image](https://github.com/zfybs/HM2FL3D/blob/master/HM2FL3D/Pictures/inp文件中C3D8类型节点格式.png) 
+![image](https://github.com/zfybs/Flac3DTools/blob/master/HM2FL3D/Pictures/inp文件中C3D8类型节点格式.png) 
 
 ###3.2.4 单元法向
   对于三维网格单元，其在Hypermesh中的法向（Normal）并不要求一致。
