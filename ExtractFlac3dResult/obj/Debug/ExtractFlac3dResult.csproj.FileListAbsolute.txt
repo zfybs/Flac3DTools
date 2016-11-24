@@ -1,0 +1,10 @@
+F:\ProgrammingCases\Flac3DTools\ExtractFlac3dResult\obj\Debug\ExtractFlac3dResult.csprojResolveAssemblyReference.cache
+F:\ProgrammingCases\Flac3DTools\ExtractFlac3dResult\obj\Debug\ExtractFlac3dResult.csproj.ResolveComReference.cache
+F:\ProgrammingCases\Flac3DTools\ExtractFlac3dResult\obj\Debug\ExtractFlac3dResult.Properties.Resources.resources
+F:\ProgrammingCases\Flac3DTools\ExtractFlac3dResult\obj\Debug\ExtractFlac3dResult.csproj.GenerateResource.Cache
+F:\ProgrammingCases\Flac3DTools\ExtractFlac3dResult\bin\Debug\ExtractFlac3dResult.exe.config
+F:\ProgrammingCases\Flac3DTools\ExtractFlac3dResult\bin\Debug\ExtractFlac3dResult.exe
+F:\ProgrammingCases\Flac3DTools\ExtractFlac3dResult\bin\Debug\ExtractFlac3dResult.pdb
+F:\ProgrammingCases\Flac3DTools\ExtractFlac3dResult\bin\Debug\ExtractFlac3dResult.xml
+F:\ProgrammingCases\Flac3DTools\ExtractFlac3dResult\obj\Debug\ExtractFlac3dResult.exe
+F:\ProgrammingCases\Flac3DTools\ExtractFlac3dResult\obj\Debug\ExtractFlac3dResult.pdb

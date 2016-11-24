@@ -19,7 +19,8 @@ Sel Liner id 1 em Group ex1 Range x= (23.73, 23.78) y =( -0.01, 0.01)  z= ( 19.6
 ##2.2 Element Set 与对应的 Liner Component的命名规范
 Element Set 与对应的 Liner Component的命名规范如下：
 -	Element Set必须以“GLiner”开头，而且名称中不能包含“-”。比如“GLiner”、“GLiner_Zone”都是可以的；
--	Liner Component的名称必须以“Liner-附着组名”开头，更多的名称信息可以在组名后用“-”进行分隔。比如当其要附着到组GLiner中时，“Liner-GLinerLeft”、“Liner-GLiner-Left”都是可以的，但是“Liner-GLinerLe![image](https://github.com/zfybs/Flac3DTools/blob/master/HM2FL3D/Pictures/LinerSet.png) ![image](https://github.com/zfybs/Flac3DTools/blob/master/HM2FL3D/Pictures/LinerComponent.png) 
+-	Liner Component的名称必须以“Liner-附着组名”开头，更多的名称信息可以在组名后用“-”进行分隔。比如当其要附着到组GLiner中时，“Liner-GLinerLeft”、“Liner-GLiner-Left”都是可以的，但是“Liner-GLinerLeft”会将此Liner单元附着到组“GLinerLeft”中，但是如果Flac3D中并没有创建一个组“GLinerLeft”的话，自然是会出现异常的。
+![image](https://github.com/zfybs/Flac3DTools/blob/master/HM2FL3D/Pictures/LinerSet.png) ![image](https://github.com/zfybs/Flac3DTools/blob/master/HM2FL3D/Pictures/LinerComponent.png) 
 
 图1 Hypermesh中与Liner 的创建相关的Set 与 Component 的命名示例
 
