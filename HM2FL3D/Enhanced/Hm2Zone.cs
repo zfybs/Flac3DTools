@@ -20,18 +20,27 @@ namespace Hm2Flac3D
         /// <remarks> 如果不显式指定 slot，则 group 默认是放在 slot 1 中的。 </remarks>
         private int linerGroupSlot = 2;
 
+        /// <summary>
+        /// 一个全局的节点集合，其中包含了所有Zone单元中的GridPoint，而且其中的节点编号没有重复。
+        /// </summary>
+        /// <remarks></remarks>
+        private Dictionary<int, XYZ> _allGridPoints = new Dictionary<int, XYZ>();
+
         #endregion
 
         /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="inpReader"></param>
-        /// <param name="zoneWriter"></param>
         /// <param name="message">用于输出的消息说明</param>
-        public Hm2Zone(StreamReader inpReader, StreamWriter zoneWriter, StringBuilder message)
+        public Hm2Zone(StreamReader inpReader, StringBuilder message)
             : base(inpReader, message)
         {
-            sw_Zone = zoneWriter;
+            //
+            Flac3dCommandWriters fcw = Flac3dCommandWriters.GetUniqueInstance();
+            StreamWriter swZone = fcw.GetWriter(ElementType.GridPoint, Flac3dCommandWriters.FileZone);
+            //
+            sw_Zone = swZone;
             _message = message;
 
             //写入头文件信息
@@ -65,14 +74,30 @@ namespace Hm2Flac3D
             return strLine;
         }
 
+        /// <summary> 创建土体的 GridPoint </summary>
+        /// <param name="sr"></param>
         protected override string Gen_Node(StreamReader sr)
         {
             string strLine = "";
             strLine = sr.ReadLine(); // 大致的结构为： "        16,  10.0           ,  6.6666666666667,  0.0            "
             while (!(strLine.StartsWith("*")))
             {
+                // 写入flac文件
                 sw_Zone.WriteLine("G  {0}", strLine);
-                strLine = sr.ReadLine(); // 大致的结构为： "        16,  10.0           ,  6.6666666666667,  0.0            "
+                // 大致的结构为： ' G           1,  147.5          ,  0.0            ,  -9.35          
+
+                //保存节点信息，以供后面创建其他单元之用
+                string[] comps = strLine.Split(',');
+
+                _allGridPoints.Add(int.Parse(comps[0]), new XYZ(
+                    double.Parse(comps[1]),
+                    double.Parse(comps[2]),
+                    double.Parse(comps[3])));
+
+
+                // 读取下一个节点
+                strLine = sr.ReadLine(); // 大致的结构为： "        16,  10.0           ,  6.6666666666667,  0.0            
+
             }
             return strLine;
         }
@@ -86,12 +111,14 @@ namespace Hm2Flac3D
         /// <remarks>在读取数据时，每一个生成单元的函数中，都会返回最后跳出循环的那个字符串，如果某行字符串没有进行任何的数据提取，或者进行单元类型的判断，则继续读取下一行字符。</remarks>
         protected override string ReadElements(StreamReader sr_inp, string stringline)
         {
-            string pattern_ElementType = "\\*ELEMENT,TYPE=(.+),ELSET=(.+)"; //大致结构为： *ELEMENT,TYPE=B31,ELSET=columns-c1
-            string pattern_Group = "\\*ELSET, ELSET=(GLiner.*)";
-                //表示 Hypermesh 中的 SetBrowser 里面的 Element 组，用来作为 在Flac3D 中创建 Liner 时的 group 区间。
+            const string pattern_ElementType = @"\*ELEMENT,TYPE=(.+),ELSET=(.+)"; //大致结构为： *ELEMENT,TYPE=B31,ELSET=columns-c1
+            const string pattern_ElementSet_LinerGroup = @"\*ELSET, ELSET=(LG.*)";   // 大致结构为：*ELSET, ELSET=LG_C2Wall
+            const string pattern_NodeSet_Merge = @"\*NSET, NSET=(LM.*)";      // 大致结构为：*NSET, NSET=LM_WallBottom
+
+            //表示 Hypermesh 中的 SetBrowser 里面的 Element 组，用来作为 在Flac3D 中创建 Liner 时的 group 区间。
 
             string strLine = stringline;
-            Match match = default(Match);
+            Match match;
             do
             {
                 //在Hypermesh导出的inp文件中，可以有很多个 *ELEMENT,TYPE=B31,ELSET=columns 这样的语句，它们是按hypermesh中的Component来进行分组的。
@@ -102,30 +129,44 @@ namespace Hm2Flac3D
                     string strEleType = match.Groups[1].Value;
 
                     string strComponentName = match.Groups[2].Value;
-                        // 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component）
+                    // 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component）
 
                     ElementType tp = Hm2Flac3DHandler.GetElementType(strEleType, strComponentName);
 
                     // 创建 Flac3D 单元
                     strLine = GenerateElement(tp, sr_inp, strComponentName);
                 }
-                else if (Regex.Match(strLine, pattern_Group).Success)
+                else if ((match = Regex.Match(strLine, pattern_ElementSet_LinerGroup)).Success)
                 {
-                    match = Regex.Match(strLine, pattern_Group);
-
                     string groupName = match.Groups[1].Value;
 
                     if (groupName.Contains("-")) // set 的名称中不能包含“-”
                     {
-                        _message.AppendLine(
-                            string.Format(
-                                "Warning : Can not export element set : \" {0} \", make sure the set name starts with \"GLiner\"(case ignored) and excludes \"-\" if you want to bind the set to the creation of Liner elements.",
-                                groupName));
+                        _message.AppendLine($"Warning : Can not export element set : \" {groupName} \", make sure the set name starts with \"LG\"(case ignored) and excludes \"-\" if you want to bind the set to the creation of Liner elements.");
                     }
                     else
                     {
                         // 创建 Flac3D 单元
-                        strLine = Gen_Group(sr_inp, groupName);
+                        strLine = Gen_LinerGroup(sr_inp, groupName);
+                    }
+                }
+                else if ((match = Regex.Match(strLine, pattern_NodeSet_Merge)).Success)
+                {
+                    string groupName = match.Groups[1].Value;
+
+                    if (groupName.Contains("-")) // set 的名称中不能包含“-”
+                    {
+                        _message.AppendLine($"Warning : Can not export element set : \" {groupName} \", make sure the set name starts with \"LM\"(case ignored).");
+                    }
+                    else
+                    {
+
+                        //
+                        Flac3dCommandWriters fcw = Flac3dCommandWriters.GetUniqueInstance();
+                        StreamWriter swMergeGp = fcw.GetWriter(ElementType.GridPoint, groupName,fileSuffix: Flac3dCommandWriters.FileSuffixSel);
+                        //
+                        // 创建 Flac3D 单元
+                        strLine = Gen_GpMerge(sr_inp, swMergeGp, groupName);
                     }
                 }
                 else
@@ -176,12 +217,12 @@ namespace Hm2Flac3D
 
         /// <summary> 在zones.flac3d 文件中写入用来绑定Liner的Group的单元集合 </summary>
         /// <param name="sr"></param>
-        /// <param name="groupName"> group的名称必须以GLiner开头，而且不包含“-” </param>
+        /// <param name="groupName"> group的名称必须以LG开头，而且不包含“-” </param>
         /// <returns></returns>
-        private string Gen_Group(StreamReader sr, string groupName)
+        private string Gen_LinerGroup(StreamReader sr, string groupName)
         {
             string pattern = "\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+)";
-                // set 集合在inp文件中的格式为： 132,       133,       134,       135,       136,       137,       138,       139,
+            // set 集合在inp文件中的格式为： 132,       133,       134,       135,       136,       137,       138,       139,
 
             List<long> listEleId = new List<long>();
 
@@ -190,7 +231,7 @@ namespace Hm2Flac3D
             string ptNum = "^\\s*(\\d+)";
             //
             Match match = default(Match);
-            GroupCollection groups = default(GroupCollection);
+            GroupCollection groups;
             string strLine = "";
             strLine = sr.ReadLine(); // 大致的结构为：  单元id, 节点1 2 3 4 5 6
             match = Regex.Match(strLine, pattern);
@@ -218,19 +259,76 @@ namespace Hm2Flac3D
             //将此Component中的所有单元写入Flac3d中的一个组中
             sw_Zone.WriteLine("* GROUPS");
             // 将用来创建 Liner 的 group 放在 Flac 中 编号为2及以上的 slot 中，以避免与其他的group产生干扰。
-            sw_Zone.WriteLine("ZGROUP " + groupName + " SLOT " + Convert.ToString(linerGroupSlot));
+            sw_Zone.WriteLine("ZGROUP " + groupName + " SLOT " + linerGroupSlot);
             linerGroupSlot++;
             int num = 0;
             for (num = 0; num <= listEleId.Count - 1; num++)
             {
                 sw_Zone.Write("    " + Convert.ToString(listEleId[num]));
                 // 写5个即换行
-                if (Convert.ToInt32(num + 1)%5 == 0)
+                if (Convert.ToInt32(num + 1) % 5 == 0)
                 {
                     sw_Zone.Write("\r\n"); //换行不能用Chr(13)，否则在Flac3d中用im zones.flac3d时，会出现不能识别的报错。
                 }
             }
             sw_Zone.WriteLine();
+            return strLine;
+        }
+
+        /// <summary> 从NSet（Node Set）中提取出节点编号，并写入一个单独的文本，用来执行Merge操作</summary>
+        /// <param name="sr"></param>
+        /// <param name="groupName"> group的名称必须以LM开头 </param>
+        /// <param name="sw_gpMerge"> 要写入哪一个文本 </param>
+        /// <returns></returns>
+        private string Gen_GpMerge(StreamReader sr, StreamWriter sw_gpMerge, string groupName)
+        {
+            string pattern = "\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+)";
+            // set 集合在inp文件中的格式为： 132,       133,       134,       135,       136,       137,       138,       139,
+            // 这八个节点中每一个都对应了一条语句，即 generate merge 0.001 Range x= (23.73, 23.78) y =( -0.01, 0.01)  z= ( 19.65, 19.67) 
+            List<int> listNdId = new List<int>();  // Node Set 中所有的节点编号
+
+            //先写入标志语句
+            string ptNum = "^\\s*(\\d+)";
+            //
+            Match match = default(Match);
+            GroupCollection groups;
+            string strLine = "";
+            strLine = sr.ReadLine(); // 大致的结构为：  单元id, 节点1 2 3 4 5 6
+            match = Regex.Match(strLine, pattern);
+            while (match.Success)
+            {
+                //将此行中所有的单元id添加到集合中
+                groups = match.Groups;
+
+                listNdId.AddRange(new int[]
+                {
+                    int.Parse(groups[1].Value),
+                    int.Parse(groups[2].Value),
+                    int.Parse(groups[3].Value),
+                    int.Parse(groups[4].Value),
+                    int.Parse(groups[5].Value),
+                    int.Parse(groups[6].Value),
+                    int.Parse(groups[7].Value),
+                    int.Parse(groups[8].Value)
+                });
+
+                //读取下一个节点
+                strLine = sr.ReadLine();
+                match = Regex.Match(strLine, pattern);
+            }
+
+            //将此Node Set中的每一个节点都生成一条 Generate Merge 命令
+            XYZ node;
+            string mergeCommand = "Generate Merge " + Hm2Flac3DHandler.CubeRangePrecision * 2 + "  ";
+            foreach (int nodeId in listNdId)
+            {
+                node = _allGridPoints[nodeId];
+                string range = Hm2Flac3DHandler.ExtendCentroid(node);
+
+                sw_gpMerge.WriteLine(mergeCommand + range);
+            }
+
+            //
             return strLine;
         }
 
@@ -298,7 +396,7 @@ namespace Hm2Flac3D
             {
                 sw_zone.Write("    " + Convert.ToString(listEleId[num]));
                 // 写5个即换行
-                if (Convert.ToInt32(num + 1)%5 == 0)
+                if (Convert.ToInt32(num + 1) % 5 == 0)
                 {
                     sw_zone.Write("\r\n"); //换行不能用Chr(13)，否则在Flac3d中用im zones.flac3d时，会出现不能识别的报错。
                 }
@@ -362,7 +460,7 @@ namespace Hm2Flac3D
             {
                 sw_zone.Write("    " + Convert.ToString(listEleId[num]));
                 // 写5个即换行
-                if (Convert.ToInt32(num + 1)%5 == 0)
+                if (Convert.ToInt32(num + 1) % 5 == 0)
                 {
                     sw_zone.Write("\r\n"); //换行不能用Chr(13)，否则在Flac3d中用im zones.flac3d时，会出现不能识别的报错。
                 }
@@ -420,7 +518,7 @@ namespace Hm2Flac3D
             {
                 sw_zone.Write("    " + Convert.ToString(listEleId[num]));
                 // 写5个即换行
-                if (Convert.ToInt32(num + 1)%5 == 0)
+                if (Convert.ToInt32(num + 1) % 5 == 0)
                 {
                     sw_zone.Write("\r\n"); //换行不能用Chr(13)，否则在Flac3d中用im zones.flac3d时，会出现不能识别的报错。
                 }

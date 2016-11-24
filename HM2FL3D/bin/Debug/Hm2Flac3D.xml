@@ -10,6 +10,22 @@
             </summary>
             <remarks></remarks>
         </member>
+        <member name="F:Hm2Flac3D.ElementType.Others">
+            <summary>
+            其他未识别的单元类型
+            </summary>
+            <remarks></remarks>
+        </member>
+        <member name="F:Hm2Flac3D.ElementType.SelNode">
+            <summary>
+            结构单元的节点，其在Flac3d中的导入格式为 SEL NODE cid           2,  140.0          ,  0.0            ,  -9.35
+            </summary>
+        </member>
+        <member name="F:Hm2Flac3D.ElementType.GridPoint">
+            <summary>
+            Zone单元的节点，其在Flac3d中的导入格式为：G           1,  147.5          ,  0.0            ,  -9.35
+            </summary>
+        </member>
         <member name="F:Hm2Flac3D.ElementType.BEAM">
             <summary>
             梁单元，其在Flac3d中的导入格式为：SEL BEAMSEL  cid   107629 id   107629 nodes  1768565 1757075
@@ -62,12 +78,6 @@
             </summary>
             <remarks></remarks>
         </member>
-        <member name="F:Hm2Flac3D.ElementType.Others">
-            <summary>
-            其他未识别的单元类型
-            </summary>
-            <remarks></remarks>
-        </member>
         <member name="P:Hm2Flac3D.form_Hm2Flac3D.Default">
             <summary>
             Added by the VB.Net to C# Converter to support default instance behavour in C#
@@ -77,8 +87,13 @@
             <summary> 通过选择文件对话框选择要进行数据提取的Excel文件 </summary>
             <returns> 要进行数据提取的Excel文件的绝对路径 </returns>
         </member>
-        <member name="F:Hm2Flac3D.Hm2Structure.sw_Sel">
-            <summary> 用来写入Structural element的节点的那个文本。 </summary>
+        <member name="M:Hm2Flac3D.form_Hm2Flac3D.Export2Zone(System.Object)">
+            <summary> 将Hypermesh中的实体单元导出到一个 flac3d 文本中。其名称为 0zones.flac3d。 </summary>
+            <param name="path_ZoneFile"></param>
+        </member>
+        <member name="M:Hm2Flac3D.form_Hm2Flac3D.Export2Sel(System.Object)">
+            <summary> 将不同类型的结构单元导出到一个或者多个文本中 </summary>
+            <param name="path_StructFile">记录结构单元的inp文件的绝对路径</param>
         </member>
         <member name="F:Hm2Flac3D.Hm2Structure.SelId">
             <summary>
@@ -88,11 +103,11 @@
         </member>
         <member name="F:Hm2Flac3D.Hm2Structure._allNodes">
             <summary>
-            一个全局的节点集合，其中包含了所有Liner单元中的节点，而且其中的节点编号没有重复。
+            一个全局的节点集合，其中包含了所有结构单元中的节点，而且其中的节点编号没有重复。
             </summary>
             <remarks></remarks>
         </member>
-        <member name="M:Hm2Flac3D.Hm2Structure.#ctor(System.IO.StreamReader,System.IO.StreamWriter,System.Text.StringBuilder)">
+        <member name="M:Hm2Flac3D.Hm2Structure.#ctor(System.IO.StreamReader,System.Text.StringBuilder)">
             <summary>
             构造函数
             </summary>
@@ -158,9 +173,9 @@
             <param name="threeNodes"> true 表示通过 S3 单元来创建Liner，False 表示通过 S4 来创建 Liner </param>
             <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符</returns>
             <remarks> Element Set 与对应的 Liner Component的命名规范如下：
-            1.Element Set必须以“GLiner”开头，而且名称中不能包含“-”。比如“GLiner”、“GLiner_Zone”都是可以的；
-            2.Liner Component的名称必须以“Liner-附着组名”开头。比如当其要附着到组GLiner中时，“Liner-GLinerLeft”、“Liner-GLiner-Left”都是可以的，
-                    但是“Liner-GLinerLeft”会将此Liner单元附着到组“GLinerLeft”中，但是如果Flac3D中并没有创建一个组“GLinerLeft”的话，自然是会出现异常的。</remarks>
+            1.Element Set必须以“LG”开头，而且名称中不能包含“-”。比如“LG”、“LG_Zone”都是可以的；
+            2.Liner Component的名称必须以“Liner-附着组名”开头。比如当其要附着到组LG中时，“Liner-LGLeft”、“Liner-LG-Left”都是可以的，
+                    但是“Liner-LGLeft”会将此Liner单元附着到组“LGLeft”中，但是如果Flac3D中并没有创建一个组“LGLeft”的话，自然是会出现异常的。</remarks>
         </member>
         <member name="M:Hm2Flac3D.Hm2Structure.Gen_Liner3(System.IO.StreamReader,System.IO.StreamWriter,System.String,System.String)">
             <summary>
@@ -229,6 +244,49 @@
             <param name="sr"> 用来提取数据的inp文件 </param>
             <param name="Component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
             <returns></returns>
+        </member>
+        <member name="T:Hm2Flac3D.Flac3dCommandWriters">
+            <summary> 用将管理不同类型的Zone单元或者结构单元，将其写入到不同的文本文件中。 </summary>
+        </member>
+        <member name="F:Hm2Flac3D.Flac3dCommandWriters.CommandDirectory">
+            <summary> 所有的命令文件所在的文件夹的绝对路径 </summary>
+        </member>
+        <member name="F:Hm2Flac3D.Flac3dCommandWriters._openedWriters">
+            <summary>
+            已经打开的文本
+            </summary>
+        </member>
+        <member name="M:Hm2Flac3D.Flac3dCommandWriters.GetWriter(Hm2Flac3D.ElementType,System.String,System.String)">
+            <summary>
+            根据要导出的单元类型，返回一个 StreamWriter，以存储用于在Flac3D中创建此类结构的命令语句
+            </summary>
+            <param name="elementType">单元类型，可以是结构单元、土体单元等任意类型的单元</param>
+            <param name="writerName">写入的文本文件的名称，不包括后缀名 </param>
+            <param name="fileSuffix"> 用户强行指定的文本后缀，如果不指定，则由<paramref name="elementType"/>来确定文件后缀。 </param>
+            <returns></returns>
+        </member>
+        <member name="M:Hm2Flac3D.Flac3dCommandWriters.CloseAllWriters(System.Boolean)">
+            <summary> 将所有的 StreamWriter 文本文件关闭 </summary>
+            <param name="writeMain">是否要新增一个命令文本，用来统领整个建模过程</param>
+        </member>
+        <member name="F:Hm2Flac3D.Flac3dCommandWriters.FileMain">
+            <summary> 用来用来统领整个建模过程的命令文本的文件名 </summary>
+        </member>
+        <member name="F:Hm2Flac3D.Flac3dCommandWriters.FileZone">
+            <summary> 用来创建Zone单元的命令文本的文件名 </summary>
+        </member>
+        <member name="F:Hm2Flac3D.Flac3dCommandWriters.FileSelNode">
+            <summary> 用来创建结构单元节点的命令文本的文件名 </summary>
+        </member>
+        <member name="M:Hm2Flac3D.Flac3dCommandWriters.GetFileSuffix(Hm2Flac3D.ElementType)">
+            <summary> 根据不同的单元类型返回对应文本的后缀名 </summary>
+            <param name="elementType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hm2Flac3D.Flac3dCommandWriters.WriteMain">
+            <summary>
+            新增一个命令文本，用来统领整个建模过程
+            </summary>
         </member>
         <member name="T:Hm2Flac3D.Hm2Flac3D_V1">
             <summary>
@@ -354,12 +412,17 @@
             </summary>
             <remarks> 如果不显式指定 slot，则 group 默认是放在 slot 1 中的。 </remarks>
         </member>
-        <member name="M:Hm2Flac3D.Hm2Zone.#ctor(System.IO.StreamReader,System.IO.StreamWriter,System.Text.StringBuilder)">
+        <member name="F:Hm2Flac3D.Hm2Zone._allGridPoints">
+            <summary>
+            一个全局的节点集合，其中包含了所有Zone单元中的GridPoint，而且其中的节点编号没有重复。
+            </summary>
+            <remarks></remarks>
+        </member>
+        <member name="M:Hm2Flac3D.Hm2Zone.#ctor(System.IO.StreamReader,System.Text.StringBuilder)">
             <summary>
             构造函数
             </summary>
             <param name="inpReader"></param>
-            <param name="zoneWriter"></param>
             <param name="message">用于输出的消息说明</param>
         </member>
         <member name="M:Hm2Flac3D.Hm2Zone.ReadFile">
@@ -368,6 +431,10 @@
             </summary>
             <returns>如果数据提取成功，则返回True，否则返回False</returns>
             <remarks>在读取数据时，每一个生成单元的函数中，都会返回最后跳出循环的那个字符串，如果某行字符串没有进行任何的数据提取，或者进行单元类型的判断，则继续读取下一行字符。</remarks>
+        </member>
+        <member name="M:Hm2Flac3D.Hm2Zone.Gen_Node(System.IO.StreamReader)">
+            <summary> 创建土体的 GridPoint </summary>
+            <param name="sr"></param>
         </member>
         <member name="M:Hm2Flac3D.Hm2Zone.ReadElements(System.IO.StreamReader,System.String)">
             <summary>
@@ -387,10 +454,17 @@
             <param name="component"></param>
             <returns></returns>
         </member>
-        <member name="M:Hm2Flac3D.Hm2Zone.Gen_Group(System.IO.StreamReader,System.String)">
+        <member name="M:Hm2Flac3D.Hm2Zone.Gen_LinerGroup(System.IO.StreamReader,System.String)">
             <summary> 在zones.flac3d 文件中写入用来绑定Liner的Group的单元集合 </summary>
             <param name="sr"></param>
-            <param name="groupName"> group的名称必须以GLiner开头，而且不包含“-” </param>
+            <param name="groupName"> group的名称必须以LG开头，而且不包含“-” </param>
+            <returns></returns>
+        </member>
+        <member name="M:Hm2Flac3D.Hm2Zone.Gen_GpMerge(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
+            <summary> 从NSet（Node Set）中提取出节点编号，并写入一个单独的文本，用来执行Merge操作</summary>
+            <param name="sr"></param>
+            <param name="groupName"> group的名称必须以LM开头 </param>
+            <param name="sw_gpMerge"> 要写入哪一个文本 </param>
             <returns></returns>
         </member>
         <member name="M:Hm2Flac3D.Hm2Zone.Gen_Zone_B8(System.IO.StreamReader,System.IO.StreamWriter,System.String)">
@@ -464,7 +538,7 @@
             <summary> 计算空间三角形的面积  </summary>
             <returns></returns>
         </member>
-        <member name="F:Hm2Flac3D.Hm2Flac3DHandler.rangePrecision">
+        <member name="F:Hm2Flac3D.Hm2Flac3DHandler.CubeRangePrecision">
             <summary>
             用来框选住 Liner 的形心的一个立方体区域，其单位为m。也就是说，Hypermesh中要尽量保证模型的网格尺寸不要小于这个值。
             </summary>

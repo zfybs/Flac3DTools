@@ -24,7 +24,7 @@ using System.Runtime.InteropServices;
 [assembly:AssemblyDescription("将Hypermesh网格转换为Flac3D网格")]
 [assembly:AssemblyCompany("A408")]
 [assembly:AssemblyProduct("HM2FL3D")]
-[assembly:AssemblyCopyright("Copyright ©  2015")]
+[assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly:AssemblyTrademark("")]
 
 [assembly:ComVisible(false)]
@@ -43,6 +43,6 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // <Assembly: AssemblyVersion("1.0.*")>
 
-[assembly:AssemblyVersion("2.0.0.0")]
-[assembly:AssemblyFileVersion("2.0.0.0")]
+[assembly: AssemblyVersion("3.0.0.0")]
+[assembly: AssemblyFileVersion("3.0.0.0")]
 
