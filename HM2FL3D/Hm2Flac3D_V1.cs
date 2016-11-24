@@ -40,7 +40,9 @@ namespace Hm2Flac3D
             string path_flacStructure = "";
             string path_flacZone = "";
             Console.WriteLine(@"******** CONVERT INP CODE(EXPORTED FROM HYPERMESH) TO FLAC3D ********");
-            blnEditMode = getReply("Run this application in edit mode.");
+            blnEditMode = getReply(@"Run this application in edit mode.
+Or press Enter to extract data from the Hm2Flac3D.inp in the same folder as this executing file.
+");
 
             // 确定文件路径
             if (blnEditMode && (!getReply("Use the default file path.")))

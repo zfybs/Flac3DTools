@@ -211,15 +211,24 @@ namespace Hm2Flac3D
 
         private void worker_DoWork(object sender, DoWorkEventArgs e)
         {
+            // 设置命令文本所在的文件夹的绝对路径
+            string globalDirePath = Path.Combine(Directory.GetCurrentDirectory(), "Hm2Fl-" + DateTime.Now.ToString("yyyyMMdd-HHmmss"));
+
+            if (!Directory.Exists(globalDirePath))
+            {
+                Directory.CreateDirectory(globalDirePath);
+            }
+            Flac3dCommandWriters.CommandDirectory = globalDirePath;
+
+            //
             Thread thdZone = default(Thread);
             Thread thdSel = default(Thread);
 
             // 先生成土体的flac文件
             if (CheckZone())
             {
-                string pathZ = Convert.ToString(TextBox_zonesInp.Text);
+                string pathZ = TextBox_zonesInp.Text;
                 thdZone = new Thread(new ParameterizedThreadStart(Export2Zone));
-                thdZone = new Thread(Export2Zone);
                 thdZone.Start(pathZ);
             }
             else
@@ -230,7 +239,7 @@ namespace Hm2Flac3D
             // 再生成结构的flac文件
             if (CheckSel())
             {
-                string pathS = Convert.ToString(TextBox_structuresInp.Text);
+                string pathS = TextBox_structuresInp.Text;
                 thdSel = new Thread(new ParameterizedThreadStart(Export2Sel));
                 thdSel.Start(pathS);
             }
@@ -301,115 +310,74 @@ namespace Hm2Flac3D
             return true;
         }
 
+        /// <summary> 将Hypermesh中的实体单元导出到一个 flac3d 文本中。其名称为 0zones.flac3d。 </summary>
+        /// <param name="path_ZoneFile"></param>
         private void Export2Zone(object path_ZoneFile)
         {
             string pathZ = path_ZoneFile.ToString();
-            string zoneTxt = Path.Combine(Convert.ToString((new FileInfo(pathZ)).DirectoryName), "zones.flac3d");
 
             // 打开文本
             FileStream Fileinp = default(FileStream);
-            FileStream Fileflc_Zone = default(FileStream);
             StreamReader sr_inp = default(StreamReader);
-            StreamWriter sw_Zone = default(StreamWriter);
 
             try
             {
                 // 打开文本
                 Fileinp = File.Open(pathZ, FileMode.Open);
-                Fileflc_Zone = File.Create(zoneTxt);
                 sr_inp = new StreamReader(Fileinp);
-                sw_Zone = new StreamWriter(Fileflc_Zone);
-                //'
-                var hmZone = new Hm2Zone(sr_inp, sw_Zone, _message);
+                //
+                var hmZone = new Hm2Zone(sr_inp, _message);
                 hmZone.ReadFile();
                 //
-                _message.AppendLine(Convert.ToString("******** 土体网格数据提取完成 ********" + "\r\n" + "\r\n"));
+                _message.AppendLine(Convert.ToString("******** 土体网格数据提取完成 ********" + "\r\n"));
             }
             catch (Exception ex)
             {
                 _message.AppendLine(ex.Message);
-                _message.AppendLine(Convert.ToString("******** 土体网格数据提取失败 ********" + "\r\n" + "\r\n"));
+                _message.AppendLine(Convert.ToString("******** 土体网格数据提取失败 ********" + "\r\n"));
             }
-            finally
-            {
-                //操作完成后关闭资源
-                if (sr_inp != null)
-                {
-                    sr_inp.Close();
-                }
-                if (sw_Zone != null)
-                {
-                    sw_Zone.Close();
-                }
-                if (Fileinp != null)
-                {
-                    Fileinp.Close();
-                }
-                if (Fileflc_Zone != null)
-                {
-                    Fileflc_Zone.Close();
-                }
-            }
-        }
+          }
 
+        /// <summary> 将不同类型的结构单元导出到一个或者多个文本中 </summary>
+        /// <param name="path_StructFile">记录结构单元的inp文件的绝对路径</param>
         private void Export2Sel(object path_StructFile)
         {
             string pathS = path_StructFile.ToString();
-            string selTxt = Path.Combine(Convert.ToString((new FileInfo(pathS)).DirectoryName), "structures.dat");
 
             // 打开文本
 
             FileStream Fileinp = default(FileStream);
-            FileStream Fileflc_Sel = default(FileStream);
             StreamReader sr_inp = default(StreamReader);
-            StreamWriter sw_Sel = default(StreamWriter);
-
 
             try
             {
                 Fileinp = File.Open(pathS, FileMode.Open);
-                Fileflc_Sel = File.Create(selTxt);
                 sr_inp = new StreamReader(Fileinp);
-                sw_Sel = new StreamWriter(Fileflc_Sel);
                 //'
-                var hmSel = new Hm2Structure(sr_inp, sw_Sel, _message);
+                var hmSel = new Hm2Structure(sr_inp, _message);
                 hmSel.ReadFile();
                 //
-                _message.AppendLine(Convert.ToString("******** 结构网格数据提取完成 ********" + "\r\n" + "\r\n"));
+                _message.AppendLine(Convert.ToString("******** 结构网格数据提取完成 ********" + "\r\n"));
             }
             catch (Exception ex)
             {
                 _message.AppendLine(ex.Message);
-                _message.AppendLine(Convert.ToString("******** 结构网格数据提取失败 ********" + "\r\n" + "\r\n"));
-            }
-            finally
-            {
-                //操作完成后关闭资源
-                if (sr_inp != null)
-                {
-                    sr_inp.Close();
-                }
-                if (sw_Sel != null)
-                {
-                    sw_Sel.Close();
-                }
-                if (Fileinp != null)
-                {
-                    Fileinp.Close();
-                }
-                if (Fileflc_Sel != null)
-                {
-                    Fileflc_Sel.Close();
-                }
+                _message.AppendLine(Convert.ToString("******** 结构网格数据提取失败 ********" + "\r\n"));
             }
         }
 
         private void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            //
             _message.AppendLine();
             _message.AppendLine("转换完成");
-
             LabelHello.Text = _message.ToString();
+
+            // 关闭所有打开的文本
+            Flac3dCommandWriters fcw = Flac3dCommandWriters.GetUniqueInstance();
+            fcw.CloseAllWriters(true);
+
+            //
             ProgressBar1.Visible = false;
             WarmUp();
         }

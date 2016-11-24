@@ -10,9 +10,6 @@ namespace Hm2Flac3D
     {
         #region ---   Fields
 
-        /// <summary> 用来写入Structural element的节点的那个文本。 </summary>
-        private StreamWriter sw_Sel;
-
         /// <summary>
         /// 每一组Structural Element 的id号，此id号为全局的，各种不同类型的结构单元之间的id号也没有相同的。
         /// </summary>
@@ -20,10 +17,10 @@ namespace Hm2Flac3D
         private long SelId = 1;
 
         /// <summary>
-        /// 一个全局的节点集合，其中包含了所有Liner单元中的节点，而且其中的节点编号没有重复。
+        /// 一个全局的节点集合，其中包含了所有结构单元中的节点，而且其中的节点编号没有重复。
         /// </summary>
         /// <remarks></remarks>
-        private Dictionary<long, XYZ> _allNodes = new Dictionary<long, XYZ>();
+        private Dictionary<int, XYZ> _allNodes = new Dictionary<int, XYZ>();
 
         #endregion
 
@@ -33,13 +30,11 @@ namespace Hm2Flac3D
         /// <param name="inpReader"></param>
         /// <param name="structureWriter"></param>
         /// <param name="message">用于输出的消息说明</param>
-        public Hm2Structure(StreamReader inpReader, StreamWriter structureWriter, StringBuilder message)
+        public Hm2Structure(StreamReader inpReader, StringBuilder message)
             : base(inpReader, message)
         {
-            sw_Sel = structureWriter;
             _message = message;
         }
-
 
         /// <summary>
         /// 读取数据，并返回跳出循环的字符串
@@ -51,8 +46,9 @@ namespace Hm2Flac3D
             //第一步：输出节点
             // -----------------------------------------------------------------------------------------------------------
             string strLine = base.ReadNodesOrGridpoint(); // 读取数据
-                                                          // -----------------------------------------------------------------------------------------------------------
-                                                          //第二步：输出单元
+
+            // -----------------------------------------------------------------------------------------------------------
+            //第二步：输出单元
             strLine = ReadElements(sr_inp, strLine); // 读取数据
 
             // -------------------------------------------------- 后续补充操作 -----------------------------------------------
@@ -102,66 +98,37 @@ namespace Hm2Flac3D
                     strLine = sr_inp.ReadLine();
                 }
             } while (strLine != null);
-
             return strLine;
         }
-
-        /// <summary>
-        /// 创建节点
-        /// </summary>
-        /// <param name="sr">用来提取数据的inp文件</param>
-        /// <returns></returns>
-        protected override string Gen_Node(StreamReader sr)
-        {
-            const string patternNode = "\\s*(\\d*),\\s*(\\d*),\\s*(\\d*),\\s*(\\d*)";
-            Match match;
-            string strLine = "";
-            strLine = sr.ReadLine(); // 节点信息在inp中的大致的结构为： "   16,  10.0     ,  6.6666666666667,  0.0     "
-            while (!(strLine.StartsWith("*")))
-            {
-                // 写入flac文件
-                sw_Sel.WriteLine("SEL NODE cid  {0}", strLine);
-                // 大致的结构为： ' SEL NODE cid  1440016  0.216969418565193E+02 -0.531659539393860E+02 -0.161000000000000E+02
-
-                //保存节点信息，以供后面创建Liner之用
-                string[] comps = strLine.Split(',');
-
-                _allNodes.Add(long.Parse(comps[0]), new XYZ(
-                    double.Parse(comps[1]),
-                    double.Parse(comps[2]),
-                    double.Parse(comps[3])));
-
-
-                // 读取下一个节点
-                strLine = sr.ReadLine(); // 大致的结构为： "        16,  10.0           ,  6.6666666666667,  0.0            "
-            }
-            return strLine;
-        }
-
+        
         protected override string GenerateElement(ElementType type, StreamReader sr_inp, string componentName)
         {
             string strLine = null;
-
+            //
+            Flac3dCommandWriters fcw = Flac3dCommandWriters.GetUniqueInstance();
+            StreamWriter swSel = fcw.GetWriter(type, componentName);
+            //
             // 结构单元
             if (type == ElementType.BEAM)
             {
-                strLine = Gen_Beam(sr_inp, sw_Sel, componentName);
+
+                strLine = Gen_Beam(sr_inp, swSel, componentName);
             }
             else if (type == ElementType.PILE)
             {
-                strLine = Gen_Pile(sr_inp, sw_Sel, componentName);
+                strLine = Gen_Pile(sr_inp, swSel, componentName);
             }
             else if (type == ElementType.SHELL3)
             {
-                strLine = Gen_Shell3(sr_inp, sw_Sel, componentName);
+                strLine = Gen_Shell3(sr_inp, swSel, componentName);
             }
             else if (type == (ElementType.Liner3 | ElementType.Liner4))
             {
-                strLine = Gen_Liner(sr_inp, sw_Sel, componentName, true);
+                strLine = Gen_Liner(sr_inp, swSel, componentName, true);
             }
             else if (type == ElementType.Liner4)
             {
-                strLine = Gen_Liner(sr_inp, sw_Sel, componentName, false);
+                strLine = Gen_Liner(sr_inp, swSel, componentName, false);
             } //Hypermesh中的类型在Flac3d中没有设置对应的类型
             else
             {
@@ -177,6 +144,40 @@ namespace Hm2Flac3D
             return strLine;
         }
 
+        /// <summary>
+        /// 创建节点
+        /// </summary>
+        /// <param name="sr">用来提取数据的inp文件</param>
+        /// <returns></returns>
+        protected override string Gen_Node(StreamReader sr)
+        {
+            string strLine = "";
+            //
+            Flac3dCommandWriters fcw = Flac3dCommandWriters.GetUniqueInstance();
+            StreamWriter swNode = fcw.GetWriter(ElementType.SelNode, Flac3dCommandWriters.FileSelNode);
+            //
+            strLine = sr.ReadLine(); // 节点信息在inp中的大致的结构为： "   16,  10.0     ,  6.6666666666667,  0.0     "
+            while (!(strLine.StartsWith("*")))
+            {
+                // 写入flac文件
+                swNode.WriteLine("SEL NODE cid  {0}", strLine);
+                // 大致的结构为： ' SEL NODE cid  1440016  0.216969418565193E+02 -0.531659539393860E+02 -0.161000000000000E+02
+
+                //保存节点信息，以供后面创建Liner之用
+                string[] comps = strLine.Split(',');
+
+                _allNodes.Add(int.Parse(comps[0]), new XYZ(
+                    double.Parse(comps[1]),
+                    double.Parse(comps[2]),
+                    double.Parse(comps[3])));
+
+
+                // 读取下一个节点
+                strLine = sr.ReadLine(); // 大致的结构为： "        16,  10.0           ,  6.6666666666667,  0.0            "
+            }
+            return strLine;
+        }
+        
         #region   ---  生成不同类型的 Structure 单元
 
         /// <summary>
@@ -315,9 +316,9 @@ namespace Hm2Flac3D
         /// <param name="threeNodes"> true 表示通过 S3 单元来创建Liner，False 表示通过 S4 来创建 Liner </param>
         /// <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符</returns>
         /// <remarks> Element Set 与对应的 Liner Component的命名规范如下：
-        /// 1.Element Set必须以“GLiner”开头，而且名称中不能包含“-”。比如“GLiner”、“GLiner_Zone”都是可以的；
-        /// 2.Liner Component的名称必须以“Liner-附着组名”开头。比如当其要附着到组GLiner中时，“Liner-GLinerLeft”、“Liner-GLiner-Left”都是可以的，
-        ///         但是“Liner-GLinerLeft”会将此Liner单元附着到组“GLinerLeft”中，但是如果Flac3D中并没有创建一个组“GLinerLeft”的话，自然是会出现异常的。</remarks>
+        /// 1.Element Set必须以“LG”开头，而且名称中不能包含“-”。比如“LG”、“LG_Zone”都是可以的；
+        /// 2.Liner Component的名称必须以“Liner-附着组名”开头。比如当其要附着到组LG中时，“Liner-LGLeft”、“Liner-LG-Left”都是可以的，
+        ///         但是“Liner-LGLeft”会将此Liner单元附着到组“LGLeft”中，但是如果Flac3D中并没有创建一个组“LGLeft”的话，自然是会出现异常的。</remarks>
         private string Gen_Liner(StreamReader sr, StreamWriter sw, string componentName, bool threeNodes)
         {
             string strLine = null;
@@ -328,8 +329,8 @@ namespace Hm2Flac3D
             {
                 // 1、确定附着的组的名称
 
-                // 当 liner 要附着到组 GLiner 中时，“Liner-GLinerLeft”、“Liner-GLiner-Left”都是可以的，
-                // 但是“Liner-GLinerLeft”会将此Liner单元附着到组“GLinerLeft”中，
+                // 当 liner 要附着到组 LG 中时，“Liner-LGLeft”、“Liner-LG-Left”都是可以的，
+                // 但是“Liner-LGLeft”会将此Liner单元附着到组“LGLeft”中，
                 string groupName = match.Groups[1].Value;
                 if (groupName.Contains("-"))
                 {
@@ -339,11 +340,11 @@ namespace Hm2Flac3D
                 // 2、进行转换
                 if (threeNodes)
                 {
-                    strLine = Gen_Liner3(sr_inp, sw_Sel, componentName, groupName);
+                    strLine = Gen_Liner3(sr_inp, sw, componentName, groupName);
                 }
                 else
                 {
-                    strLine = Gen_Liner4(sr_inp, sw_Sel, componentName, groupName);
+                    strLine = Gen_Liner4(sr_inp, sw, componentName, groupName);
                 }
             }
             else
@@ -366,10 +367,10 @@ namespace Hm2Flac3D
         {
             string pattern = "\\s*(\\d*),\\s*(\\d*),\\s*(\\d*),\\s*(\\d*)";
             string strLine = "";
-            long eleId;
-            long node1 = 0;
-            long node2 = 0;
-            long node3 = 0;
+            int eleId;
+            int node1 = 0;
+            int node2 = 0;
+            int node3 = 0;
             //
             strLine = sr.ReadLine(); // S3类型的信息在inp中，大致的结构为： " 102038,    107275,    105703,    105704"
             Match match = default(Match);
@@ -378,11 +379,11 @@ namespace Hm2Flac3D
             while (match.Success)
             {
                 groups = match.Groups;
-                eleId = Convert.ToInt64(groups[1].Value);
+                eleId = Convert.ToInt32(groups[1].Value);
                 // 在 inp 中 S3 单元的id号，但是这个单元并不用来创建Flac中的 liner 单元，而是利用其三个节点来创建liner 单元。
-                node1 = Convert.ToInt64(groups[2].Value);
-                node2 = Convert.ToInt64(groups[3].Value);
-                node3 = Convert.ToInt64(groups[4].Value);
+                node1 = Convert.ToInt32(groups[2].Value);
+                node2 = Convert.ToInt32(groups[3].Value);
+                node3 = Convert.ToInt32(groups[4].Value);
 
                 // 获取此三个节点所形成的三角形的形心点
                 XYZ centroid = Hm2Flac3DHandler.FindCentroid(_allNodes[node1], _allNodes[node2], _allNodes[node3]);
@@ -422,11 +423,11 @@ namespace Hm2Flac3D
         {
             string pattern = "\\s*(\\d*),\\s*(\\d*),\\s*(\\d*),\\s*(\\d*),\\s*(\\d*)";
             string strLine = "";
-            long eleId;
-            long node1 = 0;
-            long node2 = 0;
-            long node3 = 0;
-            long node4 = 0;
+            int eleId;
+            int node1 = 0;
+            int node2 = 0;
+            int node3 = 0;
+            int node4 = 0;
             //
             strLine = sr.ReadLine(); // S4 类型的信息在inp中，大致的结构为： " 102038,    107275,    105703,    105704,    104375 "
             Match match = default(Match);
@@ -435,12 +436,12 @@ namespace Hm2Flac3D
             while (match.Success)
             {
                 groups = match.Groups;
-                eleId = Convert.ToInt64(groups[1].Value);
+                eleId = Convert.ToInt32(groups[1].Value);
                 // 在 inp 中 S4 单元的id号，但是这个单元并不用来创建Flac中的 liner 单元，而是利用其四个节点来创建liner 单元。
-                node1 = Convert.ToInt64(groups[2].Value);
-                node2 = Convert.ToInt64(groups[3].Value);
-                node3 = Convert.ToInt64(groups[4].Value);
-                node4 = Convert.ToInt64(groups[5].Value);
+                node1 = Convert.ToInt32(groups[2].Value);
+                node2 = Convert.ToInt32(groups[3].Value);
+                node3 = Convert.ToInt32(groups[4].Value);
+                node4 = Convert.ToInt32(groups[5].Value);
 
                 // 获取此四个节点所形成的共面四边形的形心点
                 XYZ centroid = Hm2Flac3DHandler.FindCentroid(_allNodes[node1], _allNodes[node2], _allNodes[node3],

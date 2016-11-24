@@ -8,3 +8,7 @@ F:\ProgrammingCases\Flac3DTools\ExtractFlac3dResult\bin\Debug\ExtractFlac3dResul
 F:\ProgrammingCases\Flac3DTools\ExtractFlac3dResult\bin\Debug\ExtractFlac3dResult.xml
 F:\ProgrammingCases\Flac3DTools\ExtractFlac3dResult\obj\Debug\ExtractFlac3dResult.exe
 F:\ProgrammingCases\Flac3DTools\ExtractFlac3dResult\obj\Debug\ExtractFlac3dResult.pdb
+F:\ProgrammingCases\GitHubProjects\Flac3DTools\ExtractFlac3dResult\bin\Debug\ExtractFlac3dResult.exe.config
+F:\ProgrammingCases\GitHubProjects\Flac3DTools\ExtractFlac3dResult\obj\Debug\ExtractFlac3dResult.csproj.ResolveComReference.cache
+F:\ProgrammingCases\GitHubProjects\Flac3DTools\ExtractFlac3dResult\obj\Debug\ExtractFlac3dResult.exe
+F:\ProgrammingCases\GitHubProjects\Flac3DTools\ExtractFlac3dResult\obj\Debug\ExtractFlac3dResult.pdb
