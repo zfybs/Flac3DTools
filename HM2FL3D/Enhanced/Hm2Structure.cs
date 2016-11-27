@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using Hm2Flac3D.Utility;
 
-namespace Hm2Flac3D
+namespace Hm2Flac3D.Enhanced
 {
     public class Hm2Structure : InpReader
     {

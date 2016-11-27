@@ -1,6 +1,8 @@
 # HM2FL3D   ![image](https://github.com/zfybs/Flac3DTools/blob/master/HM2FL3D/Pictures/Hm2Flac3D_64.png)
 将Hypermesh风格输出的inp文件转换为Flac3D的风格。 CONVERT INP CODE(EXPORTED FROM HYPERMESH) TO FLAC3D
 
+Hm2Flac3D 专注做一件事：将Hypermesh中的可视化信息转换并拆解为Flac3D代码。
+
 ****************
 
 #一、 Hypermesh to Flac3d 转换规则

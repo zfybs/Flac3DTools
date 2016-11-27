@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using Hm2Flac3D.Utility;
 
-
-namespace Hm2Flac3D
+namespace Hm2Flac3D.Enhanced
 {
     public class Hm2Zone : InpReader
     {
@@ -49,7 +49,7 @@ namespace Hm2Flac3D
                        "* --------------------------------------------------" + "\r\n" +
                        "*  INP (exported from Hypermesh) to FLAC3D " + "\r\n" +
                        "*  Coded by Zengfy. Contact the developer with 619086871@qq.com." + "\r\n" +
-                       "*  Latest update date: 2016/11/23 " + "\r\n" +
+                       "*  Latest update date: 2016/11/25 " + "\r\n" +
                        "* --------------------------------------------------" + "\r\n" +
                        "* Generated time: " + DateTime.Today.ToString("yyyy/MM/dd") + "   " +
                        DateTime.Now.ToShortTimeString() + "\r\n" + "\r\n" + "* GRIDPOINTS";
@@ -146,7 +146,7 @@ namespace Hm2Flac3D
                     }
                     else
                     {
-                        // 创建 Flac3D 单元
+                        // 创建 Group 用来依附 Liner单元
                         strLine = Gen_LinerGroup(sr_inp, groupName);
                     }
                 }
@@ -165,7 +165,7 @@ namespace Hm2Flac3D
                         Flac3dCommandWriters fcw = Flac3dCommandWriters.GetUniqueInstance();
                         StreamWriter swMergeGp = fcw.GetWriter(ElementType.GridPoint, groupName,fileSuffix: Flac3dCommandWriters.FileSuffixSel);
                         //
-                        // 创建 Flac3D 单元
+                        // 节点耦合
                         strLine = Gen_GpMerge(sr_inp, swMergeGp, groupName);
                     }
                 }

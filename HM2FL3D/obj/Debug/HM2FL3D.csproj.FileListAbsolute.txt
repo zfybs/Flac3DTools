@@ -15,6 +15,8 @@ F:\ProgrammingCases\GitHubProjects\Flac3DTools\HM2FL3D\bin\Debug\Hm2Flac3D.exe
 F:\ProgrammingCases\GitHubProjects\Flac3DTools\HM2FL3D\bin\Debug\Hm2Flac3D.pdb
 F:\ProgrammingCases\GitHubProjects\Flac3DTools\HM2FL3D\bin\Debug\Hm2Flac3D.xml
 F:\ProgrammingCases\GitHubProjects\Flac3DTools\HM2FL3D\obj\Debug\HM2FL3D.csprojResolveAssemblyReference.cache
-F:\ProgrammingCases\GitHubProjects\Flac3DTools\HM2FL3D\obj\Debug\Hm2Flac3D.form_Hm2Flac3D.resources
 F:\ProgrammingCases\GitHubProjects\Flac3DTools\HM2FL3D\obj\Debug\Properties.Resources.resources
 F:\ProgrammingCases\GitHubProjects\Flac3DTools\HM2FL3D\obj\Debug\HM2FL3D.csproj.GenerateResource.Cache
+F:\ProgrammingCases\GitHubProjects\Flac3DTools\HM2FL3D\obj\Debug\Hm2Flac3D.Utility.Form_About.resources
+F:\ProgrammingCases\GitHubProjects\Flac3DTools\HM2FL3D\obj\Debug\Hm2Flac3D.Enhanced.form_Hm2Flac3D.resources
+F:\ProgrammingCases\GitHubProjects\Flac3DTools\HM2FL3D\obj\Debug\Hm2Flac3D.Utility.FormSettings.resources

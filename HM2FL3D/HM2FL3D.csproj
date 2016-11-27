@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{A3D45331-E506-4C6A-A960-422AA6058523}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <StartupObject>Program</StartupObject>
+    <StartupObject>Hm2Flac3D.Program</StartupObject>
     <RootNamespace>
     </RootNamespace>
     <AssemblyName>Hm2Flac3D</AssemblyName>
@@ -105,19 +105,32 @@
   <ItemGroup>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ElementType.cs" />
+    <Compile Include="Utility\ElementType.cs" />
+    <Compile Include="Utility\Form_About.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Utility\Form_About.Designer.cs">
+      <DependentUpon>Form_About.cs</DependentUpon>
+    </Compile>
     <Compile Include="Enhanced\form_Hm2Flac3D.Designer.cs">
       <DependentUpon>form_Hm2Flac3D.cs</DependentUpon>
     </Compile>
     <Compile Include="Enhanced\form_Hm2Flac3D.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Utility\FormSettings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Utility\FormSettings.Designer.cs">
+      <DependentUpon>FormSettings.cs</DependentUpon>
+    </Compile>
     <Compile Include="Enhanced\Hm2Structure.cs" />
     <Compile Include="Enhanced\InpReader.cs" />
     <Compile Include="Enhanced\Flac3dCommandWriters.cs" />
+    <Compile Include="Utility\Hm2Fl3dSetting.cs" />
     <Compile Include="Hm2Flac3D_V1.cs" />
     <Compile Include="Enhanced\Hm2Zone.cs" />
-    <Compile Include="Hm2Flac3DHandler.cs" />
+    <Compile Include="Enhanced\Hm2Flac3DHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -130,12 +143,18 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="XYZ.cs" />
+    <Compile Include="Utility\XYZ.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Utility\Form_About.resx">
+      <DependentUpon>Form_About.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Enhanced\form_Hm2Flac3D.resx">
       <DependentUpon>form_Hm2Flac3D.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Utility\FormSettings.resx">
+      <DependentUpon>FormSettings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

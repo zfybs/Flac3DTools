@@ -1,8 +1,9 @@
 using System;
 using System.IO;
 using System.Text;
+using Hm2Flac3D.Utility;
 
-namespace Hm2Flac3D
+namespace Hm2Flac3D.Enhanced
 {
 
     public abstract class InpReader

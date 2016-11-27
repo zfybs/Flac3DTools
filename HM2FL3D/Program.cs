@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Windows.Forms;
-using Hm2Flac3D;
+using Hm2Flac3D.Enhanced;
 
-static class Program
+namespace Hm2Flac3D
 {
-    /// <summary>
-    /// The main entry point for the application.
-    /// </summary>
-    [STAThread]
-    static void Main()
+    static class Program
     {
-        Application.EnableVisualStyles();
-        Application.SetCompatibleTextRenderingDefault(false);
-        Application.Run(new form_Hm2Flac3D());
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        [STAThread]
+        static void Main()
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new form_Hm2Flac3D());
+        }
     }
 }
