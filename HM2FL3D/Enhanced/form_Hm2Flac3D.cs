@@ -2,11 +2,13 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using Hm2Flac3D.Utility;
 
-namespace Hm2Flac3D
+namespace Hm2Flac3D.Enhanced
 {
     public partial class form_Hm2Flac3D
     {
@@ -39,6 +41,8 @@ namespace Hm2Flac3D
 
         #endregion
 
+        /// <summary> 在同一窗口下进行了第 ConvertIndex 次模型转换 </summary>
+        private int ConvertIndex = 1;
         private StringBuilder _message;
         private BackgroundWorker worker;
 
@@ -66,22 +70,20 @@ namespace Hm2Flac3D
             //
         }
 
+        private const string HelloTag = @" ******** CONVERT INP CODE(EXPORTED FROM HYPERMESH) TO FLAC3D ********";
+
         public void form_Hm2Flac3D_Load(object sender, EventArgs e)
         {
             _message = new StringBuilder();
-            _message.AppendLine("******** CONVERT INP CODE(EXPORTED FROM HYPERMESH) TO FLAC3D ********");
+            _message.AppendLine(HelloTag);
             LabelHello.Text = _message.ToString();
 
             // 设置初始的 inp 文件位置
-            string exeDire = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName;
-            TextBox_zonesInp.Text = Path.Combine(exeDire, "zones.inp");
-            TextBox_structuresInp.Text = Path.Combine(exeDire, "structures.inp");
+            string dir = Flac3dCommandWriters.GetWorkDirectory();
+            TextBox_zonesInp.Text = Path.Combine(dir, "zones.inp");
+            TextBox_structuresInp.Text = Path.Combine(dir, "structures.inp");
         }
 
-        public void ButtonClose_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
 
         public void form_Hm2Flac3D_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -98,7 +100,6 @@ namespace Hm2Flac3D
 
         private void DoseOff()
         {
-            ButtonClose.Enabled = false;
             ButtonChooseZones.Enabled = false;
             ButtonChooseStructures.Enabled = false;
             ButtonNoLiner.Enabled = false;
@@ -108,7 +109,6 @@ namespace Hm2Flac3D
 
         private void WarmUp()
         {
-            ButtonClose.Enabled = true;
             ButtonChooseZones.Enabled = true;
             ButtonChooseStructures.Enabled = true;
             ButtonNoLiner.Enabled = true;
@@ -185,16 +185,15 @@ namespace Hm2Flac3D
             return "";
         }
 
-        public void TextBox_zonesInp_Enter(object sender, EventArgs e)
+        private void button_OpenWorkDirectory_Click(object sender, EventArgs e)
         {
-            var txt = (TextBox)sender;
-            txt.SelectAll();
-            txt.Focus();
+            string workingDirectory = Flac3dCommandWriters.GetWorkDirectory();
+            // 打开文件夹
+            System.Diagnostics.Process.Start("Explorer.exe", workingDirectory);
         }
-
         #endregion
 
-        #region ---    Liner 模式
+        #region ---    ！！！ 模型转换接口 具体实现
 
         public void buttonTransForm_Click(object sender, EventArgs e)
         {
@@ -211,14 +210,8 @@ namespace Hm2Flac3D
 
         private void worker_DoWork(object sender, DoWorkEventArgs e)
         {
-            // 设置命令文本所在的文件夹的绝对路径
-            string globalDirePath = Path.Combine(Directory.GetCurrentDirectory(), "Hm2Fl-" + DateTime.Now.ToString("yyyyMMdd-HHmmss"));
-
-            if (!Directory.Exists(globalDirePath))
-            {
-                Directory.CreateDirectory(globalDirePath);
-            }
-            Flac3dCommandWriters.CommandDirectory = globalDirePath;
+            _message.AppendLine("--------------------------------------------------------------  " + ConvertIndex + "\r\n");
+            ConvertIndex += 1;
 
             //
             Thread thdZone = default(Thread);
@@ -233,7 +226,7 @@ namespace Hm2Flac3D
             }
             else
             {
-                _message.AppendLine("******** 土体网格数据提取失败 ********");
+                _message.AppendLine("******** 土体网格数据提取失败 ********\r\n");
             }
 
             // 再生成结构的flac文件
@@ -245,7 +238,7 @@ namespace Hm2Flac3D
             }
             else
             {
-                _message.AppendLine("******** 结构网格数据提取失败 ********");
+                _message.AppendLine("******** 结构网格数据提取失败 ********\r\n");
             }
 
             //
@@ -270,14 +263,14 @@ namespace Hm2Flac3D
 
             if (!File.Exists(pathZ))
             {
-                _message.AppendLine("指定位置的土体网格文件不存在");
+                _message.AppendLine("指定位置的土体网格文件不存在\r\n");
                 return false;
             }
 
             // 先生成土体的flac文件
             if (string.Compare(strA: Path.GetExtension(pathZ), strB: ".inp", ignoreCase: true) != 0)
             {
-                _message.AppendLine("土体网格文件格式不对");
+                _message.AppendLine("土体网格文件格式不对\r\n");
                 return false;
             }
 
@@ -296,13 +289,13 @@ namespace Hm2Flac3D
 
             if (!File.Exists(pathS))
             {
-                _message.AppendLine("指定位置的结构网格文件不存在");
+                _message.AppendLine("指定位置的结构网格文件不存在\r\n");
                 return false;
             }
 
             if (string.Compare(strA: Path.GetExtension(pathS), strB: ".inp", ignoreCase: true) != 0)
             {
-                _message.AppendLine("结构网格文件格式不对");
+                _message.AppendLine("结构网格文件格式不对\r\n");
                 return false;
             }
 
@@ -317,14 +310,14 @@ namespace Hm2Flac3D
             string pathZ = path_ZoneFile.ToString();
 
             // 打开文本
-            FileStream Fileinp = default(FileStream);
-            StreamReader sr_inp = default(StreamReader);
+            FileStream fileinp = null;
+            StreamReader sr_inp = null;
 
             try
             {
                 // 打开文本
-                Fileinp = File.Open(pathZ, FileMode.Open);
-                sr_inp = new StreamReader(Fileinp);
+                fileinp = File.Open(pathZ, FileMode.Open);
+                sr_inp = new StreamReader(fileinp);
                 //
                 var hmZone = new Hm2Zone(sr_inp, _message);
                 hmZone.ReadFile();
@@ -333,10 +326,21 @@ namespace Hm2Flac3D
             }
             catch (Exception ex)
             {
-                _message.AppendLine(ex.Message);
+                _message.AppendLine(ex.Message + "\r\n" + ex.StackTrace);
                 _message.AppendLine(Convert.ToString("******** 土体网格数据提取失败 ********" + "\r\n"));
             }
-          }
+            finally
+            {
+                if (sr_inp != null)
+                {
+                    sr_inp.Close();
+                }
+                if (fileinp != null)
+                {
+                    fileinp.Close();
+                }
+            }
+        }
 
         /// <summary> 将不同类型的结构单元导出到一个或者多个文本中 </summary>
         /// <param name="path_StructFile">记录结构单元的inp文件的绝对路径</param>
@@ -346,13 +350,13 @@ namespace Hm2Flac3D
 
             // 打开文本
 
-            FileStream Fileinp = default(FileStream);
-            StreamReader sr_inp = default(StreamReader);
+            FileStream fileinp = null;
+            StreamReader sr_inp = null;
 
             try
             {
-                Fileinp = File.Open(pathS, FileMode.Open);
-                sr_inp = new StreamReader(Fileinp);
+                fileinp = File.Open(pathS, FileMode.Open);
+                sr_inp = new StreamReader(fileinp);
                 //'
                 var hmSel = new Hm2Structure(sr_inp, _message);
                 hmSel.ReadFile();
@@ -361,8 +365,19 @@ namespace Hm2Flac3D
             }
             catch (Exception ex)
             {
-                _message.AppendLine(ex.Message);
+                _message.AppendLine(ex.Message + "\r\n" + ex.StackTrace);
                 _message.AppendLine(Convert.ToString("******** 结构网格数据提取失败 ********" + "\r\n"));
+            }
+            finally
+            {
+                if (sr_inp != null)
+                {
+                    sr_inp.Close();
+                }
+                if (fileinp != null)
+                {
+                    fileinp.Close();
+                }
             }
         }
 
@@ -370,13 +385,13 @@ namespace Hm2Flac3D
         {
             //
             _message.AppendLine();
-            _message.AppendLine("转换完成");
+            _message.AppendLine("--------------------------------------------------------  转换结束");
             LabelHello.Text = _message.ToString();
 
             // 关闭所有打开的文本
             Flac3dCommandWriters fcw = Flac3dCommandWriters.GetUniqueInstance();
             fcw.CloseAllWriters(true);
-
+            Flac3dCommandWriters.WorkingStartTime = null;
             //
             ProgressBar1.Visible = false;
             WarmUp();
@@ -402,5 +417,29 @@ namespace Hm2Flac3D
         }
 
         #endregion
+
+        #region ---   菜单命令
+
+        private void ToolStripMenuItem_Directory_Click(object sender, EventArgs e)
+        {
+            FormSettings fs = new FormSettings();
+            fs.ShowDialog();
+        }
+
+        private void ToolStripMenuItem_About_Click(object sender, EventArgs e)
+        {
+            Form_About fa = new Form_About();
+            fa.ShowDialog();
+        }
+
+
+        private void ToolStripMenuItem_ClearText_Click(object sender, EventArgs e)
+        {
+            _message.Clear();
+            _message.AppendLine(HelloTag);
+            LabelHello.Text = _message.ToString();
+        }
+        #endregion
+
     }
 }
