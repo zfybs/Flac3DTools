@@ -198,20 +198,20 @@ namespace Hm2Flac3D.Enhanced
             this.ToolStripMenuItem_ClearText,
             this.ToolStripMenuItem_Directory});
             this.ToolStripMenuItem_Setting.Name = "ToolStripMenuItem_Setting";
-            this.ToolStripMenuItem_Setting.Size = new System.Drawing.Size(43, 20);
+            this.ToolStripMenuItem_Setting.Size = new System.Drawing.Size(45, 20);
             this.ToolStripMenuItem_Setting.Text = "设置";
             // 
             // ToolStripMenuItem_ClearText
             // 
             this.ToolStripMenuItem_ClearText.Name = "ToolStripMenuItem_ClearText";
-            this.ToolStripMenuItem_ClearText.Size = new System.Drawing.Size(152, 22);
+            this.ToolStripMenuItem_ClearText.Size = new System.Drawing.Size(126, 22);
             this.ToolStripMenuItem_ClearText.Text = "清除文本";
             this.ToolStripMenuItem_ClearText.Click += new System.EventHandler(this.ToolStripMenuItem_ClearText_Click);
             // 
             // ToolStripMenuItem_Directory
             // 
             this.ToolStripMenuItem_Directory.Name = "ToolStripMenuItem_Directory";
-            this.ToolStripMenuItem_Directory.Size = new System.Drawing.Size(152, 22);
+            this.ToolStripMenuItem_Directory.Size = new System.Drawing.Size(126, 22);
             this.ToolStripMenuItem_Directory.Text = "工作路径";
             this.ToolStripMenuItem_Directory.ToolTipText = "命令文本的输入文件夹";
             this.ToolStripMenuItem_Directory.Click += new System.EventHandler(this.ToolStripMenuItem_Directory_Click);
@@ -263,6 +263,7 @@ namespace Hm2Flac3D.Enhanced
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Hm2Flac3D";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.form_Hm2Flac3D_FormClosing);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.form_Hm2Flac3D_FormClosed);
             this.Load += new System.EventHandler(this.form_Hm2Flac3D_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();

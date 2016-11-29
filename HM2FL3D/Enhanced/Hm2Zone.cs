@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Hm2Flac3D.Utility;
@@ -18,7 +19,7 @@ namespace Hm2Flac3D.Enhanced
         ///  将用来创建 Liner 的 group 放在 Flac 中 编号为2及以上的 slot 中，以避免与其他的group产生干扰。
         /// </summary>
         /// <remarks> 如果不显式指定 slot，则 group 默认是放在 slot 1 中的。 </remarks>
-        private int linerGroupSlot = 2;
+        private int _groupSlot = 2;
 
         /// <summary>
         /// 一个全局的节点集合，其中包含了所有Zone单元中的GridPoint，而且其中的节点编号没有重复。
@@ -38,7 +39,8 @@ namespace Hm2Flac3D.Enhanced
         {
             //
             Flac3dCommandWriters fcw = Flac3dCommandWriters.GetUniqueInstance();
-            StreamWriter swZone = fcw.GetWriter(ElementType.GridPoint, Flac3dCommandWriters.FileZone);
+            Flac3DCommandType fct = Hm2Flac3DHandler.GetCommandType(ElementType.GridPoint);
+            StreamWriter swZone = fcw.GetWriter(fct, Flac3dCommandWriters.FileZone, null);
             //
             sw_Zone = swZone;
             _message = message;
@@ -122,7 +124,7 @@ namespace Hm2Flac3D.Enhanced
             do
             {
                 //在Hypermesh导出的inp文件中，可以有很多个 *ELEMENT,TYPE=B31,ELSET=columns 这样的语句，它们是按hypermesh中的Component来进行分组的。
-                match = Regex.Match(strLine, pattern_ElementType);
+                match = Regex.Match(strLine, pattern_ElementType, RegexOptions.IgnoreCase);
                 if (match.Success)
                 {
                     //
@@ -136,7 +138,7 @@ namespace Hm2Flac3D.Enhanced
                     // 创建 Flac3D 单元
                     strLine = GenerateElement(tp, sr_inp, strComponentName);
                 }
-                else if ((match = Regex.Match(strLine, pattern_ElementSet_LinerGroup)).Success)
+                else if ((match = Regex.Match(strLine, pattern_ElementSet_LinerGroup, RegexOptions.IgnoreCase)).Success)
                 {
                     string groupName = match.Groups[1].Value;
 
@@ -150,7 +152,7 @@ namespace Hm2Flac3D.Enhanced
                         strLine = Gen_LinerGroup(sr_inp, groupName);
                     }
                 }
-                else if ((match = Regex.Match(strLine, pattern_NodeSet_Merge)).Success)
+                else if ((match = Regex.Match(strLine, pattern_NodeSet_Merge, RegexOptions.IgnoreCase)).Success)
                 {
                     string groupName = match.Groups[1].Value;
 
@@ -160,10 +162,10 @@ namespace Hm2Flac3D.Enhanced
                     }
                     else
                     {
-
                         //
                         Flac3dCommandWriters fcw = Flac3dCommandWriters.GetUniqueInstance();
-                        StreamWriter swMergeGp = fcw.GetWriter(ElementType.GridPoint, groupName,fileSuffix: Flac3dCommandWriters.FileSuffixSel);
+                        Flac3DCommandType fct = Hm2Flac3DHandler.GetCommandType(ElementType.MERGEPOINT);
+                        StreamWriter swMergeGp = fcw.GetWriter(fct, groupName, null);
                         //
                         // 节点耦合
                         strLine = Gen_GpMerge(sr_inp, swMergeGp, groupName);
@@ -215,43 +217,34 @@ namespace Hm2Flac3D.Enhanced
             return strLine;
         }
 
+        #region   ---  Element Set 与 Node Set 的处理
+
         /// <summary> 在zones.flac3d 文件中写入用来绑定Liner的Group的单元集合 </summary>
         /// <param name="sr"></param>
         /// <param name="groupName"> group的名称必须以LG开头，而且不包含“-” </param>
         /// <returns></returns>
         private string Gen_LinerGroup(StreamReader sr, string groupName)
         {
-            string pattern = "\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+)";
+            string pattern = @"^\s*(\d+)";
             // set 集合在inp文件中的格式为： 132,       133,       134,       135,       136,       137,       138,       139,
+            // 但是在最后一行时，也有可能不足8个单元编号，所以在正则表达式中，只能判断这一行中是否有至少一个数值编号
 
-            List<long> listEleId = new List<long>();
+            List<int> listEleId = new List<int>();
 
             //先写入标志语句
             sw_Zone.WriteLine("* ZONES");
-            string ptNum = "^\\s*(\\d+)";
             //
-            Match match = default(Match);
-            GroupCollection groups;
             string strLine = "";
             strLine = sr.ReadLine(); // 大致的结构为：  单元id, 节点1 2 3 4 5 6
-            match = Regex.Match(strLine, pattern);
+            Match match = Regex.Match(strLine, pattern);
             while (match.Success)
             {
+                string[] elementIds = strLine.Split(',');
+                // 当此行为“ 132,       133,       134,       135,       136,       137,       138,       139,”时，Split()后数组中有9个元素，最后一个为空字符。
+
                 //将此行中所有的单元id添加到集合中
-                groups = match.Groups;
-
-                listEleId.AddRange(new long[]
-                {
-                    long.Parse(groups[1].Value),
-                    long.Parse(groups[2].Value),
-                    long.Parse(groups[3].Value),
-                    long.Parse(groups[4].Value),
-                    long.Parse(groups[5].Value),
-                    long.Parse(groups[6].Value),
-                    long.Parse(groups[7].Value),
-                    long.Parse(groups[8].Value)
-                });
-
+                listEleId.AddRange(elementIds.Where(r => !string.IsNullOrEmpty(r)).Select(int.Parse).ToArray());
+                
                 //读取下一个节点
                 strLine = sr.ReadLine();
                 match = Regex.Match(strLine, pattern);
@@ -259,8 +252,8 @@ namespace Hm2Flac3D.Enhanced
             //将此Component中的所有单元写入Flac3d中的一个组中
             sw_Zone.WriteLine("* GROUPS");
             // 将用来创建 Liner 的 group 放在 Flac 中 编号为2及以上的 slot 中，以避免与其他的group产生干扰。
-            sw_Zone.WriteLine("ZGROUP " + groupName + " SLOT " + linerGroupSlot);
-            linerGroupSlot++;
+            sw_Zone.WriteLine("ZGROUP " + groupName + " SLOT " + _groupSlot);
+            _groupSlot++;
             int num = 0;
             for (num = 0; num <= listEleId.Count - 1; num++)
             {
@@ -278,40 +271,31 @@ namespace Hm2Flac3D.Enhanced
         /// <summary> 从NSet（Node Set）中提取出节点编号，并写入一个单独的文本，用来执行Merge操作</summary>
         /// <param name="sr"></param>
         /// <param name="groupName"> group的名称必须以LM开头 </param>
-        /// <param name="sw_gpMerge"> 要写入哪一个文本 </param>
+        /// <param name="swGpMerge"> 要写入哪一个文本 </param>
         /// <returns></returns>
-        private string Gen_GpMerge(StreamReader sr, StreamWriter sw_gpMerge, string groupName)
+        private string Gen_GpMerge(StreamReader sr, StreamWriter swGpMerge, string groupName)
         {
-            string pattern = "\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+)";
+            string pattern = @"^\s*(\d+)";
             // set 集合在inp文件中的格式为： 132,       133,       134,       135,       136,       137,       138,       139,
-            // 这八个节点中每一个都对应了一条语句，即 generate merge 0.001 Range x= (23.73, 23.78) y =( -0.01, 0.01)  z= ( 19.65, 19.67) 
+            // 但是在最后一行时，也有可能不足8个节点编号，所以在正则表达式中，只能判断这一行中是否有至少一个数值编号
+
+            // 每一个节点编号都对应了一条语句，即 generate merge 0.001 Range x= (23.73, 23.78) y =( -0.01, 0.01)  z= ( 19.65, 19.67) 
             List<int> listNdId = new List<int>();  // Node Set 中所有的节点编号
 
             //先写入标志语句
-            string ptNum = "^\\s*(\\d+)";
             //
-            Match match = default(Match);
-            GroupCollection groups;
-            string strLine = "";
+            Match match;
+            string strLine;
             strLine = sr.ReadLine(); // 大致的结构为：  单元id, 节点1 2 3 4 5 6
             match = Regex.Match(strLine, pattern);
             while (match.Success)
             {
+                string[] elementIds = strLine.Split(',');
+                // 当此行为“ 132,       133,       134,       135,       136,       137,       138,       139,”时，Split()后数组中有9个元素，最后一个为空字符。
+
                 //将此行中所有的单元id添加到集合中
-                groups = match.Groups;
-
-                listNdId.AddRange(new int[]
-                {
-                    int.Parse(groups[1].Value),
-                    int.Parse(groups[2].Value),
-                    int.Parse(groups[3].Value),
-                    int.Parse(groups[4].Value),
-                    int.Parse(groups[5].Value),
-                    int.Parse(groups[6].Value),
-                    int.Parse(groups[7].Value),
-                    int.Parse(groups[8].Value)
-                });
-
+                listNdId.AddRange(elementIds.Where(r => !string.IsNullOrEmpty(r)).Select(int.Parse).ToArray());
+                
                 //读取下一个节点
                 strLine = sr.ReadLine();
                 match = Regex.Match(strLine, pattern);
@@ -325,12 +309,14 @@ namespace Hm2Flac3D.Enhanced
                 node = _allGridPoints[nodeId];
                 string range = Hm2Flac3DHandler.ExtendCentroid(node);
 
-                sw_gpMerge.WriteLine(mergeCommand + range);
+                swGpMerge.WriteLine(mergeCommand + range);
             }
 
             //
             return strLine;
         }
+
+        #endregion
 
         #region   ---  生成不同类型的 Zone 单元
 
@@ -345,7 +331,7 @@ namespace Hm2Flac3D.Enhanced
         private string Gen_Zone_B8(StreamReader sr, StreamWriter sw_zone, string Component)
         {
             string pattern =
-                "\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+)";
+                @"^\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)";
             long eleId = 0;
             long node1 = 0;
             long node2 = 0;
@@ -359,7 +345,7 @@ namespace Hm2Flac3D.Enhanced
 
             //先写入标志语句
             sw_zone.WriteLine("* ZONES");
-            string ptNum = "^\\s*(\\d+)";
+            string ptNum = @"^\s*(\d+)";
             //
             Match match = default(Match);
             GroupCollection groups = default(GroupCollection);
@@ -415,19 +401,19 @@ namespace Hm2Flac3D.Enhanced
         /// <remarks></remarks>
         private string Gen_Zone_W6(StreamReader sr, StreamWriter sw_zone, string Component)
         {
-            string pattern = "\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+)";
-            long eleId = 0;
-            long node1 = 0;
-            long node2 = 0;
-            long node3 = 0;
-            long node4 = 0;
-            long node5 = 0;
-            long node6 = 0;
-            List<long> listEleId = new List<long>();
+            string pattern = @"^\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)";
+            int eleId;
+            int node1;
+            int node2;
+            int node3;
+            int node4;
+            int node5;
+            int node6;
+            List<int> listEleId = new List<int>();
 
             //先写入标志语句
             sw_zone.WriteLine("* ZONES");
-            string ptNum = "^\\s*(\\d+)";
+            string ptNum = @"^\s*(\d+)";
             //
             Match match = default(Match);
             GroupCollection groups = default(GroupCollection);
@@ -437,13 +423,13 @@ namespace Hm2Flac3D.Enhanced
             while (match.Success)
             {
                 groups = match.Groups;
-                eleId = Convert.ToInt64(groups[1].Value);
-                node1 = Convert.ToInt64(groups[2].Value);
-                node2 = Convert.ToInt64(groups[3].Value);
-                node3 = Convert.ToInt64(groups[4].Value);
-                node4 = Convert.ToInt64(groups[5].Value);
-                node5 = Convert.ToInt64(groups[6].Value);
-                node6 = Convert.ToInt64(groups[7].Value);
+                eleId = Convert.ToInt32(groups[1].Value);
+                node1 = Convert.ToInt32(groups[2].Value);
+                node2 = Convert.ToInt32(groups[3].Value);
+                node3 = Convert.ToInt32(groups[4].Value);
+                node4 = Convert.ToInt32(groups[5].Value);
+                node5 = Convert.ToInt32(groups[6].Value);
+                node6 = Convert.ToInt32(groups[7].Value);
                 sw_zone.WriteLine("Z W6  {0}   {1}  {2}  {3}  {4}  {5}  {6}", eleId, node1, node3, node4, node2, node6,
                     node5);
                 listEleId.Add(eleId);
@@ -479,17 +465,17 @@ namespace Hm2Flac3D.Enhanced
         /// <remarks></remarks>
         private string Gen_Zone_T4(StreamReader sr, StreamWriter sw_zone, string Component)
         {
-            string pattern = "\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+)";
-            long eleId = 0;
-            long node1 = 0;
-            long node2 = 0;
-            long node3 = 0;
-            long node4 = 0;
-            List<long> listEleId = new List<long>();
+            string pattern = @"^\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)";
+            int eleId;
+            int node1;
+            int node2;
+            int node3;
+            int node4;
+            List<int> listEleId = new List<int>();
 
             //先写入标志语句
             sw_zone.WriteLine("* ZONES");
-            string ptNum = "^\\s*(\\d+)";
+            string ptNum = @"^\s*(\d+)";
             //
             Match match = default(Match);
             GroupCollection groups = default(GroupCollection);
@@ -499,11 +485,11 @@ namespace Hm2Flac3D.Enhanced
             while (match.Success)
             {
                 groups = match.Groups;
-                eleId = Convert.ToInt64(groups[1].Value);
-                node1 = Convert.ToInt64(groups[2].Value);
-                node2 = Convert.ToInt64(groups[3].Value);
-                node3 = Convert.ToInt64(groups[4].Value);
-                node4 = Convert.ToInt64(groups[5].Value);
+                eleId = Convert.ToInt32(groups[1].Value);
+                node1 = Convert.ToInt32(groups[2].Value);
+                node2 = Convert.ToInt32(groups[3].Value);
+                node3 = Convert.ToInt32(groups[4].Value);
+                node4 = Convert.ToInt32(groups[5].Value);
                 sw_zone.WriteLine("Z T4  {0}   {1}  {2}  {3}  {4}", eleId, node1, node2, node3, node4);
                 listEleId.Add(eleId);
                 //读取下一个节点

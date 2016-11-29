@@ -15,7 +15,7 @@ namespace Hm2Flac3D.Enhanced
         /// 每一组Structural Element 的id号，此id号为全局的，各种不同类型的结构单元之间的id号也没有相同的。
         /// </summary>
         /// <remarks></remarks>
-        private long SelId = 1;
+        private int _selId = 1;
 
         /// <summary>
         /// 一个全局的节点集合，其中包含了所有结构单元中的节点，而且其中的节点编号没有重复。
@@ -73,7 +73,7 @@ namespace Hm2Flac3D.Enhanced
         /// <remarks>在读取数据时，每一个生成单元的函数中，都会返回最后跳出循环的那个字符串，如果某行字符串没有进行任何的数据提取，或者进行单元类型的判断，则继续读取下一行字符。</remarks>
         protected override string ReadElements(StreamReader sr_inp, string stringline)
         {
-            string pattern_ElementType = "\\*ELEMENT,TYPE=(.+),ELSET=(.+)"; //大致结构为： *ELEMENT,TYPE=B31,ELSET=columns-c1
+            string pattern_ElementType = @"\*ELEMENT,TYPE=(.+),ELSET=(.+)"; //大致结构为： *ELEMENT,TYPE=B31,ELSET=columns-c1
 
             var strLine = stringline;
             Match match = default(Match);
@@ -101,47 +101,45 @@ namespace Hm2Flac3D.Enhanced
             } while (strLine != null);
             return strLine;
         }
-        
+
         protected override string GenerateElement(ElementType type, StreamReader sr_inp, string componentName)
         {
-            string strLine = null;
+
             //
             Flac3dCommandWriters fcw = Flac3dCommandWriters.GetUniqueInstance();
-            StreamWriter swSel = fcw.GetWriter(type, componentName);
+            Flac3DCommandType fct = Hm2Flac3DHandler.GetCommandType(type);
+            StreamWriter swSel = fcw.GetWriter(fct, componentName,  _selId);
             //
             // 结构单元
+            string strLine;
             if (type == ElementType.BEAM)
             {
-
-                strLine = Gen_Beam(sr_inp, swSel, componentName);
+                strLine = Gen_Beam(sr_inp, swSel, componentName, _selId);
             }
             else if (type == ElementType.PILE)
             {
-                strLine = Gen_Pile(sr_inp, swSel, componentName);
+                strLine = Gen_Pile(sr_inp, swSel, componentName, _selId);
             }
             else if (type == ElementType.SHELL3)
             {
-                strLine = Gen_Shell3(sr_inp, swSel, componentName);
+                strLine = Gen_Shell3(sr_inp, swSel, componentName, _selId);
             }
             else if (type == (ElementType.Liner3 | ElementType.Liner4))
             {
-                strLine = Gen_Liner(sr_inp, swSel, componentName, true);
+                strLine = Gen_Liner(sr_inp, swSel, componentName, _selId, true);
             }
             else if (type == ElementType.Liner4)
             {
-                strLine = Gen_Liner(sr_inp, swSel, componentName, false);
+                strLine = Gen_Liner(sr_inp, swSel, componentName, _selId, false);
             } //Hypermesh中的类型在Flac3d中没有设置对应的类型
             else
             {
-                _message.AppendLine(
-                    string.Format(
-                        "Warning : Can not match element type \" {0} \"(in component {1}) with a corresponding type in Flac3D,",
-                        type.ToString(), componentName));
+                _message.AppendLine($"Warning : Can not match element type \" {type} \"(in component {componentName}) with a corresponding type in Flac3D.");
 
                 //如果某行字符串没有进行任何的数据提取，或者进行单元类型的判断，则继续读取下一行字符。
                 strLine = sr_inp.ReadLine();
             }
-
+            _selId++;
             return strLine;
         }
 
@@ -155,7 +153,8 @@ namespace Hm2Flac3D.Enhanced
             string strLine = "";
             //
             Flac3dCommandWriters fcw = Flac3dCommandWriters.GetUniqueInstance();
-            StreamWriter swNode = fcw.GetWriter(ElementType.SelNode, Flac3dCommandWriters.FileSelNode);
+            Flac3DCommandType fct = Hm2Flac3DHandler.GetCommandType(ElementType.SelNode);
+            StreamWriter swNode = fcw.GetWriter(fct, Flac3dCommandWriters.FileSelNode,  null);
             //
             strLine = sr.ReadLine(); // 节点信息在inp中的大致的结构为： "   16,  10.0     ,  6.6666666666667,  0.0     "
             while (!(strLine.StartsWith("*")))
@@ -178,18 +177,19 @@ namespace Hm2Flac3D.Enhanced
             }
             return strLine;
         }
-        
+
         #region   ---  生成不同类型的 Structure 单元
 
         /// <summary>
         /// 生成桩单元，并返回跳出循环的字符串
         /// </summary>
-        /// <param name="Component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
+        /// <param name="component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
+        /// <param name="selId"> 结构单元所属集合的Id </param>
         /// <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
         /// <remarks></remarks>
-        private string Gen_Pile(StreamReader sr, StreamWriter sw, string component)
+        private string Gen_Pile(StreamReader sr, StreamWriter sw, string component, int selId)
         {
-            string pattern = "\\s*(\\d*),\\s*(\\d*),\\s*(\\d*)";
+            string pattern = @"^\s*(\d*),\s*(\d*),\s*(\d*)";
             string strLine = "";
             long eleId = 0;
             long node1 = 0;
@@ -207,7 +207,7 @@ namespace Hm2Flac3D.Enhanced
                 node2 = Convert.ToInt64(groups[3].Value);
                 if (node1 != node2)
                 {
-                    sw.WriteLine("SEL PILESEL  cid   {0} id   {1} nodes  {2} {3}", eleId, SelId, node1, node2);
+                    sw.WriteLine("SEL PILESEL  cid   {0} id   {1} nodes  {2} {3}", eleId, selId, node1, node2);
                     // 大致的结构为：SEL PILESEL  cid   109200 id   109200 nodes  1770004 1769720
                 }
                 else
@@ -218,21 +218,21 @@ namespace Hm2Flac3D.Enhanced
                 strLine = sr.ReadLine();
                 match = Regex.Match(strLine, pattern);
             }
-            sw.WriteLine("sel group  {0} range id {1}", component, SelId);
+            sw.WriteLine("sel group  {0} range id {1}", component, selId);
             // 大致的结构为：SEL PILESEL  cid   109200 id   109200 nodes  1770004 1769720
-            SelId++;
             return strLine;
         }
 
         /// <summary>
         /// 生成梁单元，并返回跳出循环的字符串
         /// </summary>
-        /// <param name="Component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
+        /// <param name="component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
+        /// <param name="selId"> 结构单元所属集合的Id </param>
         /// <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
         /// <remarks></remarks>
-        private string Gen_Beam(StreamReader sr, StreamWriter sw, string component)
+        private string Gen_Beam(StreamReader sr, StreamWriter sw, string component, int selId)
         {
-            string pattern = "\\s*(\\d*),\\s*(\\d*),\\s*(\\d*)";
+            string pattern = @"^\s*(\d*),\s*(\d*),\s*(\d*)";
             string strLine = "";
             long eleId = 0;
             long node1 = 0;
@@ -250,7 +250,7 @@ namespace Hm2Flac3D.Enhanced
                 node2 = Convert.ToInt64(groups[3].Value);
                 if (node1 != node2)
                 {
-                    sw.WriteLine("SEL BEAMSEL  cid   {0} id   {1} nodes  {2} {3}", eleId, SelId, node1, node2);
+                    sw.WriteLine("SEL BEAMSEL  cid   {0} id   {1} nodes  {2} {3}", eleId, selId, node1, node2);
                     // 大致的结构为：SEL PILESEL  cid   109200 id   109200 nodes  1770004 1769720
                 }
                 else
@@ -261,9 +261,8 @@ namespace Hm2Flac3D.Enhanced
                 strLine = sr.ReadLine();
                 match = Regex.Match(strLine, pattern);
             }
-            sw.WriteLine("sel group  {0} range id {1}", component, SelId);
+            sw.WriteLine("sel group  {0} range id {1}", component, selId);
             // 大致的结构为：SEL PILESEL  cid   109200 id   109200 nodes  1770004 1769720
-            SelId++;
             return strLine;
         }
 
@@ -272,12 +271,13 @@ namespace Hm2Flac3D.Enhanced
         /// </summary>
         /// <param name="sr"></param>
         /// <param name="sw"></param>
-        /// <param name="Component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
+        /// <param name="component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
+        /// <param name="selId"> 结构单元所属集合的Id </param>
         /// <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
         /// <remarks></remarks>
-        private string Gen_Shell3(StreamReader sr, StreamWriter sw, string Component)
+        private string Gen_Shell3(StreamReader sr, StreamWriter sw, string component, int selId)
         {
-            string pattern = "\\s*(\\d*),\\s*(\\d*),\\s*(\\d*),\\s*(\\d*)";
+            string pattern = @"^\s*(\d*),\s*(\d*),\s*(\d*),\s*(\d*)";
             string strLine = "";
             long eleId = 0;
             long node1 = 0;
@@ -296,15 +296,14 @@ namespace Hm2Flac3D.Enhanced
                 node2 = Convert.ToInt64(groups[3].Value);
                 node3 = Convert.ToInt64(groups[4].Value);
                 //下面这一条语句所创建的Shell，它并不会与其周围的Zone之间建立 Node-to-Zone links.
-                sw.WriteLine("SEL SHELLSEL cid   {0} id   {1} ele DKT_CST  nodes  {2} {3} {4}", eleId, SelId, node1, node2,
+                sw.WriteLine("SEL SHELLSEL cid   {0} id   {1} ele DKT_CST  nodes  {2} {3} {4}", eleId, selId, node1, node2,
                     node3); // 大致的结构为：SEL SHELLSEL cid    68341 id    68341 ele DKT_CST  nodes  1 2 3
                             //读取下一个节点
                 strLine = sr.ReadLine();
                 match = Regex.Match(strLine, pattern);
             }
-            sw.WriteLine("sel group  {0} range id {1}", Component, SelId);
+            sw.WriteLine("sel group  {0} range id {1}", component, selId);
             // 大致的结构为：SEL PILESEL  cid   109200 id   109200 nodes  1770004 1769720
-            SelId++;
             return strLine;
         }
 
@@ -315,12 +314,13 @@ namespace Hm2Flac3D.Enhanced
         /// <param name="sw"></param>
         /// <param name="componentName"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
         /// <param name="threeNodes"> true 表示通过 S3 单元来创建Liner，False 表示通过 S4 来创建 Liner </param>
+        /// <param name="selId"> 结构单元所属集合的Id </param>
         /// <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符</returns>
         /// <remarks> Element Set 与对应的 Liner Component的命名规范如下：
         /// 1.Element Set必须以“LG”开头，而且名称中不能包含“-”。比如“LG”、“LG_Zone”都是可以的；
         /// 2.Liner Component的名称必须以“Liner-附着组名”开头。比如当其要附着到组LG中时，“Liner-LGLeft”、“Liner-LG-Left”都是可以的，
         ///         但是“Liner-LGLeft”会将此Liner单元附着到组“LGLeft”中，但是如果Flac3D中并没有创建一个组“LGLeft”的话，自然是会出现异常的。</remarks>
-        private string Gen_Liner(StreamReader sr, StreamWriter sw, string componentName, bool threeNodes)
+        private string Gen_Liner(StreamReader sr, StreamWriter sw, string componentName, int selId, bool threeNodes)
         {
             string strLine = null;
 
@@ -341,11 +341,11 @@ namespace Hm2Flac3D.Enhanced
                 // 2、进行转换
                 if (threeNodes)
                 {
-                    strLine = Gen_Liner3(sr_inp, sw, componentName, groupName);
+                    strLine = Gen_Liner3(sr_inp, sw, componentName, groupName, selId);
                 }
                 else
                 {
-                    strLine = Gen_Liner4(sr_inp, sw, componentName, groupName);
+                    strLine = Gen_Liner4(sr_inp, sw, componentName, groupName, selId);
                 }
             }
             else
@@ -362,11 +362,12 @@ namespace Hm2Flac3D.Enhanced
         /// <param name="sw"></param>
         /// <param name="componentName"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
         /// <param name="groupName"> 要依托于哪一个group来生成liner单元 </param>
+        /// <param name="selId"> 结构单元所属集合的Id </param>
         /// <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
         /// <remarks></remarks>
-        private string Gen_Liner3(StreamReader sr, StreamWriter sw, string componentName, string groupName)
+        private string Gen_Liner3(StreamReader sr, StreamWriter sw, string componentName, string groupName, int selId)
         {
-            string pattern = "\\s*(\\d*),\\s*(\\d*),\\s*(\\d*),\\s*(\\d*)";
+            string pattern = @"^\s*(\d*),\s*(\d*),\s*(\d*),\s*(\d*)";
             string strLine = "";
             int eleId;
             int node1 = 0;
@@ -374,8 +375,8 @@ namespace Hm2Flac3D.Enhanced
             int node3 = 0;
             //
             strLine = sr.ReadLine(); // S3类型的信息在inp中，大致的结构为： " 102038,    107275,    105703,    105704"
-            Match match = default(Match);
-            GroupCollection groups = default(GroupCollection);
+            Match match;
+            GroupCollection groups;
             match = Regex.Match(strLine, pattern);
             while (match.Success)
             {
@@ -387,13 +388,13 @@ namespace Hm2Flac3D.Enhanced
                 node3 = Convert.ToInt32(groups[4].Value);
 
                 // 获取此三个节点所形成的三角形的形心点
-                XYZ centroid = Hm2Flac3DHandler.FindCentroid(_allNodes[node1], _allNodes[node2], _allNodes[node3]);
+                XYZ centroid = XYZ.FindCentroid(_allNodes[node1], _allNodes[node2], _allNodes[node3]);
 
                 string range = Hm2Flac3DHandler.ExtendCentroid(centroid);
 
                 // 创建与两面都有与 zone 的接触的 Liner 单元
                 // Sel Liner  id 1 em group ex1 range x 23.73 23.78 y -0.01 0.01 z 19.65 19.67
-                sw.WriteLine("Sel Liner id {0} em group {1} {2}", SelId, groupName, range);
+                sw.WriteLine("Sel Liner id {0} em group {1} {2}", selId, groupName, range);
 
                 //下面这一条语句所创建的Liner，它并不会与其周围的Zone之间建立 Node-to-Zone links.
                 //而且即使用"SEL NODE INIT XPOS ADD 0.0"来创建Node-Zone link，此单元上也只有一面会与Zone之间有link
@@ -404,9 +405,8 @@ namespace Hm2Flac3D.Enhanced
                 match = Regex.Match(strLine, pattern);
             }
 
-            sw.WriteLine("sel group  {0} range id {1}", componentName, SelId);
+            sw.WriteLine("sel group  {0} range id {1}", componentName, selId);
             // 大致的结构为：SEL PILESEL  cid   109200 id   109200 nodes  1770004 1769720
-            SelId++;
             return strLine;
         }
 
@@ -418,11 +418,12 @@ namespace Hm2Flac3D.Enhanced
         /// <param name="sw"> S4类型的单元在inp文件中的格式为： 102038,    107275,    105703,    105704,    104375  </param>
         /// <param name="componentName"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
         /// <param name="groupName"> 要依托于哪一个group来生成liner单元 </param>
+        /// <param name="selId"> 结构单元所属集合的Id </param>
         /// <returns>在这一区块中，最后一次读取的字符，即跳出循环的字符，比如：**HWCOLOR COMP 57   60 或者 **HMASSEM  2   6 A_M</returns>
         /// <remarks>创建方法为先找到此四边形的形心，然后将形心点向扩展1mm， 以形成一个体积为1立方毫米的立方体，然后用此立方体来作为创建 Liner 的 range。</remarks>
-        private string Gen_Liner4(StreamReader sr, StreamWriter sw, string componentName, string groupName)
+        private string Gen_Liner4(StreamReader sr, StreamWriter sw, string componentName, string groupName, int selId)
         {
-            string pattern = "\\s*(\\d*),\\s*(\\d*),\\s*(\\d*),\\s*(\\d*),\\s*(\\d*)";
+            string pattern = @"^\s*(\d*),\s*(\d*),\s*(\d*),\s*(\d*),\s*(\d*)";
             string strLine = "";
             int eleId;
             int node1 = 0;
@@ -445,14 +446,14 @@ namespace Hm2Flac3D.Enhanced
                 node4 = Convert.ToInt32(groups[5].Value);
 
                 // 获取此四个节点所形成的共面四边形的形心点
-                XYZ centroid = Hm2Flac3DHandler.FindCentroid(_allNodes[node1], _allNodes[node2], _allNodes[node3],
+                XYZ centroid = XYZ.FindCentroid(_allNodes[node1], _allNodes[node2], _allNodes[node3],
                     _allNodes[node4]);
 
                 string range = Hm2Flac3DHandler.ExtendCentroid(centroid);
 
                 // 创建与两面都有与 zone 的接触的 Liner 单元
                 // Sel Liner  id 1 em group ex1 range x 23.73 23.78 y -0.01 0.01 z 19.65 19.67
-                sw.WriteLine("Sel Liner id {0} em group {1} {2}", SelId, groupName, range);
+                sw.WriteLine("Sel Liner id {0} em group {1} {2}", selId, groupName, range);
 
                 //下面这一条语句所创建的Liner，它并不会与其周围的Zone之间建立 Node-to-Zone links.
                 //而且即使用"SEL NODE INIT XPOS ADD 0.0"来创建Node-Zone link，此单元上也只有一面会与Zone之间有link
@@ -467,9 +468,8 @@ namespace Hm2Flac3D.Enhanced
                 match = Regex.Match(strLine, pattern);
             }
 
-            sw.WriteLine("sel group  {0} range id {1}", componentName, SelId);
+            sw.WriteLine("sel group  {0} range id {1}", componentName, selId);
             // 大致的结构为：SEL PILESEL  cid   109200 id   109200 nodes  1770004 1769720
-            SelId++;
             return strLine;
         }
 

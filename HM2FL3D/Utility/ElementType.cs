@@ -71,11 +71,45 @@ namespace Hm2Flac3D.Utility
         /// <remarks></remarks>
         ZONE_W6 = 256,
 
-        /// <summary>
-        /// 四面体（金字塔形、四节点）单元，其在Flac3d中的导入格式为：Z T4   90111  92891  92874  92868  92954
-        /// </summary>
+        /// <summary> 四面体（金字塔形、四节点）单元，其在Flac3d中的导入格式为：Z T4   90111  92891  92874  92868  92954 </summary>
         /// <remarks></remarks>
         ZONE_T4 = 512,
+
+        /// <summary> 将指定坐标点的节点进行耦合，其在Flac3d中的导入格式为：Generate Merge 0.001  Range x=(44.9995,45.0005) y=(79.9995,80.0005)  z=(-34.0005,-33.9995) </summary>
+        MERGEPOINT = 1024,
+    }
+
+    /// <summary> 在Flac3D中的命令文本类型，一个文本中可能对应创建多种<see cref="ElementType"/>的单元 </summary>
+    /// <remarks></remarks>
+    [Flags]
+    public enum Flac3DCommandType
+    {
+        /// <summary>  </summary>
+        Others = 0,
+
+        /// <summary> 用来统领整个建模过程 </summary>
+        Main = 1,
+
+        /// <summary> 包含了GridPoint定义、Group定义、以及用于依附Liner的Element Set的定义 </summary>
+        Zones = 2,
+
+        /// <summary> 结构单元的节点编号与坐标 </summary>
+        SelNode = 4,
+
+        /// <summary> 创建 Flac3D 中的梁单元 </summary>
+        Beam = 8,
+
+        /// <summary> 创建 Flac3D 中的桩单元 </summary>
+        Pile = 16,
+
+        /// <summary> 创建 Flac3D 中的壳单元 </summary>
+        Shell = 32,
+
+        /// <summary> 创建 Flac3D 中的衬砌单元 </summary>
+        Liner = 64,
+
+        /// <summary> 将指定坐标点的节点进行耦合 </summary>
+        MergePoint = 128,
 
     }
 }

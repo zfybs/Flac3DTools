@@ -80,70 +80,6 @@ namespace Hm2Flac3D.Enhanced
             }
         }
 
-        /// <summary>
-        /// 寻找三个点所形成的空间三角形的形心
-        /// </summary>
-        /// <param name="node1"></param>
-        /// <param name="node2"></param>
-        /// <param name="node3"></param>
-        /// <returns></returns>
-        public static XYZ FindCentroid(XYZ node1, XYZ node2, XYZ node3)
-        {
-            return new XYZ(Convert.ToDouble((node1.X + node2.X + node3.X) / 3), Convert.ToDouble(
-                (node1.Y + node2.Y + node3.Y) / 3), Convert.ToDouble(
-                    (node1.Z + node2.Z + node3.Z) / 3));
-        }
-
-        /// <summary>
-        /// 寻找空间四个点所形成的共面的空间四边形角形的形心，如果四个点不共面，则会报错
-        /// </summary>
-        /// <param name="node1"></param>
-        /// <param name="node2"></param>
-        /// <param name="node3"></param>
-        /// <param name="node4"></param>
-        /// <returns> 四边形的形心点的坐标 </returns>
-        /// <remarks>在inp文件中，输入的四个节点的顺序一定是可以形成一个边界环路的，即使此S4单元的网格形状为有凹角的异型错误网格。</remarks>
-        public static XYZ FindCentroid(XYZ node1, XYZ node2, XYZ node3, XYZ node4)
-        {
-            // 以两个对角点中距离较短的那个作为两个三角形的分割边
-            XYZ[] nodes = null;
-            if (node1.DistanceTo(node3) < node2.DistanceTo(node4))
-            {
-                nodes = new[] { node2, node1, node3, node4 };
-            }
-            else
-            {
-                nodes = new[] { node1, node2, node4, node3 };
-            }
-
-            // 先计算第一个三角形的形心位置与面积
-            XYZ c1 = FindCentroid(nodes[0], nodes[1], nodes[2]);
-            double area1 = Area(nodes[0], nodes[1], nodes[2]);
-
-            // 再计算第二个三角形的形心位置与面积
-            XYZ c2 = FindCentroid(nodes[1], nodes[2], nodes[3]);
-            double area2 = Area(nodes[1], nodes[2], nodes[3]);
-
-            double centDis = c1.DistanceTo(c2);
-
-            // 利用杠杆原理计算两个三角形的组合四边形形心位置：area1 * x=area2 * (centDis-x)
-            double x = centDis / (area1 / area2 + 1); // 四边形的形心点处在两个三角形的形心连线上，x 为四边形的形心点到第1个三角形形心的距离。
-
-            return c1.Move(c1.VectorTo(c2).SetLength(x));
-        }
-
-        /// <summary> 计算空间三角形的面积  </summary>
-        /// <returns></returns>
-        private static double Area(XYZ node1, XYZ node2, XYZ node3)
-        {
-            // 三条边长
-            double a = XYZ.Distance(node1, node2);
-            double b = XYZ.Distance(node2, node3);
-            double c = XYZ.Distance(node3, node1);
-
-            double p = (a + b + c) / 2;
-            return p * (p - a) * (p - b) * (p - c); // 海伦公式
-        }
 
         /// <summary>
         /// 用来框选住 Liner 的形心的一个立方体区域，其单位为m。也就是说，Hypermesh中要尽量保证模型的网格尺寸不要小于这个值。
@@ -164,6 +100,44 @@ namespace Hm2Flac3D.Enhanced
                 (centroid.X - CubeRangePrecision), (centroid.X + CubeRangePrecision),
                 (centroid.Y - CubeRangePrecision), (centroid.Y + CubeRangePrecision),
                 (centroid.Z - CubeRangePrecision), (centroid.Z + CubeRangePrecision));
+        }
+
+        /// <summary> 定义每一种类型的单元应该被放置在哪种类型的命令文本中 </summary>
+        /// <param name="elementType"></param>
+        /// <returns></returns>
+        public static Flac3DCommandType GetCommandType(ElementType elementType)
+        {
+            Flac3DCommandType fct = Flac3DCommandType.Others;
+            switch (elementType)
+            {
+                case ElementType.SelNode:
+                    return Flac3DCommandType.SelNode;
+
+                case ElementType.GridPoint:
+                case ElementType.ZONE_B8:
+                case ElementType.ZONE_T4:
+                case ElementType.ZONE_W6:
+                    return Flac3DCommandType.Zones;
+
+                case ElementType.BEAM:
+                    return Flac3DCommandType.Beam;
+
+                case ElementType.PILE:
+                    return Flac3DCommandType.Pile;
+
+                case ElementType.SHELL3:
+                    return Flac3DCommandType.Shell;
+
+                case ElementType.Liner3:
+                case ElementType.Liner4:
+                    return Flac3DCommandType.Liner;
+
+                case ElementType.MERGEPOINT:
+                    return Flac3DCommandType.MergePoint;
+
+            }
+
+            return fct;
         }
 
         /// <summary>  释放控制台   </summary>
