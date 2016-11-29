@@ -105,6 +105,7 @@
   <ItemGroup>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enhanced\WriterInfo.cs" />
     <Compile Include="Utility\ElementType.cs" />
     <Compile Include="Utility\Form_About.cs">
       <SubType>Form</SubType>

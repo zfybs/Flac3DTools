@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Enhanced;
 using Hm2Flac3D.Utility;
 
 namespace Hm2Flac3D.Enhanced
@@ -12,7 +13,7 @@ namespace Hm2Flac3D.Enhanced
         /// <summary>
         /// 已经打开的文本
         /// </summary>
-        private Dictionary<string, StreamWriter> _openedWriters;
+        private Dictionary<string, WriterInfo> _openedWriters;
 
         #region ---   构造函数
 
@@ -29,65 +30,7 @@ namespace Hm2Flac3D.Enhanced
 
         private Flac3dCommandWriters()
         {
-            _openedWriters = new Dictionary<string, StreamWriter>();
-        }
-
-        #endregion
-
-        #region ---   公共函数
-
-        /// <summary>
-        /// 根据要导出的单元类型，返回一个 StreamWriter，以存储用于在Flac3D中创建此类结构的命令语句
-        /// </summary>
-        /// <param name="elementType">单元类型，可以是结构单元、土体单元等任意类型的单元</param>
-        /// <param name="writerName">写入的文本文件的名称，不包括后缀名 </param>
-        /// <param name="fileSuffix"> 用户强行指定的文本后缀，如果不指定，则由<paramref name="elementType"/>来确定文件后缀。 </param>
-        /// <returns></returns>
-        public StreamWriter GetWriter(ElementType elementType, string writerName, string fileSuffix = null)
-        {
-            // 确定文件名
-            string fileName = writerName + (fileSuffix ?? GetFileSuffix(elementType));
-
-            if (_openedWriters.ContainsKey(fileName))
-            {
-                return _openedWriters[fileName];
-            }
-            else // 说明此文本还未创建
-            {
-                string filePath = Path.Combine(GetCommandDirectory(), fileName);
-                //
-                FileStream fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write);
-                StreamWriter sw = new StreamWriter(fs);
-                //
-                _openedWriters.Add(fileName, sw);
-                return sw;
-            }
-        }
-
-        /// <summary> 将所有的 StreamWriter 文本文件关闭 </summary>
-        /// <param name="writeMain">是否要新增一个命令文本，用来统领整个建模过程</param>
-        public void CloseAllWriters(bool writeMain)
-        {
-            if (_openedWriters != null)
-            {
-                foreach (StreamWriter sw in _openedWriters.Values)
-                {
-                    if (sw != null)
-                    {
-                        sw.Close();
-                        sw.Dispose();
-                    }
-                }
-                //
-                if (writeMain)
-                {
-                    WriteMain();
-                }
-                //
-                _openedWriters.Clear();
-                _openedWriters = null;
-                _uniqueInstance = null;
-            }
+            _openedWriters = new Dictionary<string, WriterInfo>();
         }
 
         #endregion
@@ -145,30 +88,82 @@ namespace Hm2Flac3D.Enhanced
 
         #endregion
 
-        /// <summary> 根据不同的单元类型返回对应文本的后缀名 </summary>
-        /// <param name="elementType"></param>
+        /// <summary>
+        /// 根据要导出的单元类型，返回一个 StreamWriter，以存储用于在Flac3D中创建此类结构的命令语句
+        /// </summary>
+        /// <param name="commandType"> 要写入的命令文本的类型 </param>
+        /// <param name="writerName">写入的文本文件的名称，不包括后缀名 </param>
+        /// <param name="fileSuffix"> 用户强行指定的文本后缀，如果不指定，则由<paramref name="commandType"/>来确定文件后缀。 </param>
+        /// <param name="selId"> 结构单元所属的集合Id，如果没有Id，则赋值为 null </param>
         /// <returns></returns>
-        private string GetFileSuffix(ElementType elementType)
+        public StreamWriter GetWriter(Flac3DCommandType commandType, string writerName, int? selId)
         {
-            ElementType structureType = ElementType.SelNode | ElementType.BEAM | ElementType.PILE | ElementType.SHELL3 |
-                                        ElementType.Liner3 | ElementType.Liner4;
-            ElementType zoneType = ElementType.GridPoint | ElementType.ZONE_T4 | ElementType.ZONE_B8 |
-                                   ElementType.ZONE_W6;
+            // 确定文件名
+            string fileName = writerName + GetFileSuffix(commandType);
 
-            if ((elementType & structureType) > 0)
+            if (_openedWriters.ContainsKey(fileName))
             {
-                // 结构单元文本文件的后缀
-                return FileSuffixSel;
+                return _openedWriters[fileName].Writer;
             }
-            else if ((elementType & zoneType) > 0)
+            else // 说明此文本还未创建
+            {
+                string filePath = Path.Combine(GetCommandDirectory(), fileName);
+                // 新建一个文本文档并将相关信息保存下来
+                FileStream fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write);
+                StreamWriter sw = new StreamWriter(fs);
+
+                // 
+                WriterInfo wi = new WriterInfo(commandType, fileName, sw)
+                {
+                    Id = selId,
+                };
+
+                _openedWriters.Add(fileName, wi);
+                return sw;
+            }
+        }
+
+        /// <summary> 根据不同的单元类型返回对应文本的后缀名 </summary>
+        /// <param name="commandType"></param>
+        /// <returns></returns>
+        private string GetFileSuffix(Flac3DCommandType commandType)
+        {
+            if ((commandType & Flac3DCommandType.Zones) > 0)
             {
                 // 土体单元文本文件的后缀 
                 return FileSuffixZone;
             }
             else
             {
-                // 默认后缀 
+                // 结构单元文本文件的后缀
                 return FileSuffixSel;
+            }
+        }
+
+        /// <summary> 将所有的 StreamWriter 文本文件关闭 </summary>
+        /// <param name="writeMain">是否要新增一个命令文本，用来统领整个建模过程</param>
+        public void CloseAllWriters(bool writeMain)
+        {
+            if (_openedWriters != null)
+            {
+                foreach (WriterInfo wi in _openedWriters.Values)
+                {
+                    StreamWriter sw = wi.Writer;
+                    if (sw != null)
+                    {
+                        sw.Close();
+                        sw.Dispose();
+                    }
+                }
+                //
+                if (writeMain)
+                {
+                    WriteMain();
+                }
+                //
+                _openedWriters.Clear();
+                _openedWriters = null;
+                _uniqueInstance = null;
             }
         }
 
@@ -192,6 +187,8 @@ set nmd on  ; When nmd is on, any tetrahedral zones will use the nmd algorithm d
 set notice on ; controls whether informational messages generated by the program during command processing will be sent to the screen and the log file
 set warning off ; controls whether warning messages generated by the program during command processing will be sent to the screen and the log file 
 set echo off;
+
+; This file is just for reference of calling the exported components.
 ");
 
                 // 因为土体单元的文件后缀不同，所以进行特殊处理
@@ -201,10 +198,20 @@ set echo off;
                     sw.WriteLine($"ImpGrid {zoneCommandFile}");
                     names.Remove(zoneCommandFile);
                 }
+
                 // 其他结构单元
                 foreach (var name in names)
                 {
-                    sw.WriteLine($"Call {name}");
+                    WriterInfo wi = _openedWriters[name];
+
+                    //添加注释
+                    string comments = null;
+                    if (wi.Id != null)
+                    {
+                        comments = $" \t; Id: {wi.Id}";
+                    }
+                    //
+                    sw.WriteLine($"Call {name}{comments}");
                 }
                 //
                 sw.Close();

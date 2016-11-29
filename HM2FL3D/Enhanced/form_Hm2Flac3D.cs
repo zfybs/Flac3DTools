@@ -42,9 +42,11 @@ namespace Hm2Flac3D.Enhanced
         #endregion
 
         /// <summary> 在同一窗口下进行了第 ConvertIndex 次模型转换 </summary>
-        private int ConvertIndex = 1;
+        private int _convertIndex = 1;
         private StringBuilder _message;
         private BackgroundWorker worker;
+
+        /// <summary> 程序配置文件 </summary>
 
         #region ---   窗口的加载与关闭
 
@@ -79,11 +81,10 @@ namespace Hm2Flac3D.Enhanced
             LabelHello.Text = _message.ToString();
 
             // 设置初始的 inp 文件位置
-            string dir = Flac3dCommandWriters.GetWorkDirectory();
-            TextBox_zonesInp.Text = Path.Combine(dir, "zones.inp");
-            TextBox_structuresInp.Text = Path.Combine(dir, "structures.inp");
+            Hm2Fl3dSetting settings = new Hm2Fl3dSetting();
+            TextBox_zonesInp.Text = settings.ZonesInpPath;
+            TextBox_structuresInp.Text = settings.StructuresInpPath;
         }
-
 
         public void form_Hm2Flac3D_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -92,8 +93,18 @@ namespace Hm2Flac3D.Enhanced
             worker.CancelAsync();
             worker.Dispose();
             worker = null;
+            //
+
         }
 
+        private void form_Hm2Flac3D_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Hm2Fl3dSetting settings = new Hm2Fl3dSetting();
+            settings.ZonesInpPath = TextBox_zonesInp.Text;
+            settings.StructuresInpPath = TextBox_structuresInp.Text;
+            settings.Save();
+
+        }
         #endregion
 
         #region ---   界面事件处理
@@ -210,8 +221,8 @@ namespace Hm2Flac3D.Enhanced
 
         private void worker_DoWork(object sender, DoWorkEventArgs e)
         {
-            _message.AppendLine("--------------------------------------------------------------  " + ConvertIndex + "\r\n");
-            ConvertIndex += 1;
+            _message.AppendLine("--------------------------------------------------------------  " + _convertIndex + "\r\n");
+            _convertIndex += 1;
 
             //
             Thread thdZone = default(Thread);
