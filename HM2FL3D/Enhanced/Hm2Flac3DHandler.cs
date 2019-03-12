@@ -84,8 +84,8 @@ namespace Hm2Flac3D.Enhanced
         /// <summary>
         /// 用来框选住 Liner 的形心的一个立方体区域，其单位为m。也就是说，Hypermesh中要尽量保证模型的网格尺寸不要小于这个值。
         /// </summary>
-        /// <remarks></remarks>
-        public const double CubeRangePrecision = 0.0005;
+        /// <remarks>如果立方体的边长为1mm，则此常数值就设置为0.0005。在测试中，Flac所能接受的立方体容差约为0.00006m</remarks>
+        public static double CubeRangePrecision = 0.0005;
 
         /// <summary>
         /// 将 形心点 扩展到一个立方体区域
@@ -95,11 +95,12 @@ namespace Hm2Flac3D.Enhanced
         /// <remarks></remarks>
         public static string ExtendCentroid(XYZ centroid)
         {
-            // 左右各扩展0.5mm，以形成一个1立方米的区域
-            return string.Format("Range x=({0},{1}) y=({2},{3})  z=({4},{5})",
-                (centroid.X - CubeRangePrecision), (centroid.X + CubeRangePrecision),
-                (centroid.Y - CubeRangePrecision), (centroid.Y + CubeRangePrecision),
-                (centroid.Z - CubeRangePrecision), (centroid.Z + CubeRangePrecision));
+            // 左右各扩展0.5mm，以形成一个1立方米的区域。
+            // 控制数值字符精度，反正其精度也不会细于0.1mm。
+            return string.Format("Range x=({0},{1}) y=({2},{3}) z=({4},{5})",
+                (centroid.X - CubeRangePrecision).ToString("0.#####"), (centroid.X + CubeRangePrecision).ToString("0.#####"),
+                (centroid.Y - CubeRangePrecision).ToString("0.#####"), (centroid.Y + CubeRangePrecision).ToString("0.#####"),
+                (centroid.Z - CubeRangePrecision).ToString("0.#####"), (centroid.Z + CubeRangePrecision).ToString("0.#####"));
         }
 
         /// <summary> 定义每一种类型的单元应该被放置在哪种类型的命令文本中 </summary>

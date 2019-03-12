@@ -70,6 +70,7 @@ namespace Hm2Flac3D.Enhanced
             ProgressBar1.MarqueeAnimationSpeed = 10;
             ProgressBar1.Visible = false;
             //
+            TextboxTolerance.Text = @"0.005";
         }
 
         private const string HelloTag = @" ******** CONVERT INP CODE(EXPORTED FROM HYPERMESH) TO FLAC3D ********";
@@ -223,7 +224,8 @@ namespace Hm2Flac3D.Enhanced
         {
             _message.AppendLine("--------------------------------------------------------------  " + _convertIndex + "\r\n");
             _convertIndex += 1;
-
+            //
+            Hm2Flac3DHandler.CubeRangePrecision = TextboxTolerance.ValueNumber / 2;
             //
             Thread thdZone = default(Thread);
             Thread thdSel = default(Thread);

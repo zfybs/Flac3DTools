@@ -124,7 +124,7 @@ namespace Hm2Flac3D.Enhanced
             {
                 strLine = Gen_Shell3(sr_inp, swSel, componentName, _selId);
             }
-            else if (type == (ElementType.Liner3 | ElementType.Liner4))
+            else if (type == (ElementType.Liner3))
             {
                 strLine = Gen_Liner(sr_inp, swSel, componentName, _selId, true);
             }

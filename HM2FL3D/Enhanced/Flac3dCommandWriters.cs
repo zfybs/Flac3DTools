@@ -214,6 +214,8 @@ set echo off;
                     sw.WriteLine($"Call {name}{comments}");
                 }
                 //
+                sw.WriteLine($"save initModel.sav");
+                //
                 sw.Close();
                 sw.Dispose();
             }

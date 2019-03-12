@@ -42,6 +42,8 @@ namespace Hm2Flac3D.Enhanced
             this.ButtonNoLiner = new System.Windows.Forms.Button();
             this.ToolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.button_OpenWorkDirectory = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
+            this.TextboxTolerance = new Hm2Flac3D.Utility.TextBoxNum();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.ToolStripMenuItem_Setting = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStripMenuItem_ClearText = new System.Windows.Forms.ToolStripMenuItem();
@@ -55,7 +57,7 @@ namespace Hm2Flac3D.Enhanced
             // buttonTransForm
             // 
             this.buttonTransForm.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonTransForm.Location = new System.Drawing.Point(397, 347);
+            this.buttonTransForm.Location = new System.Drawing.Point(573, 457);
             this.buttonTransForm.Name = "buttonTransForm";
             this.buttonTransForm.Size = new System.Drawing.Size(75, 23);
             this.buttonTransForm.TabIndex = 0;
@@ -68,9 +70,9 @@ namespace Hm2Flac3D.Enhanced
             this.TextBox_zonesInp.AllowDrop = true;
             this.TextBox_zonesInp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.TextBox_zonesInp.Location = new System.Drawing.Point(11, 266);
+            this.TextBox_zonesInp.Location = new System.Drawing.Point(11, 376);
             this.TextBox_zonesInp.Name = "TextBox_zonesInp";
-            this.TextBox_zonesInp.Size = new System.Drawing.Size(379, 21);
+            this.TextBox_zonesInp.Size = new System.Drawing.Size(555, 21);
             this.TextBox_zonesInp.TabIndex = 1;
             this.TextBox_zonesInp.DragDrop += new System.Windows.Forms.DragEventHandler(this.TextBox_zonesInp_DragDrop);
             this.TextBox_zonesInp.DragEnter += new System.Windows.Forms.DragEventHandler(this.TextBox_zonesInp_DragEnter);
@@ -80,9 +82,9 @@ namespace Hm2Flac3D.Enhanced
             this.TextBox_structuresInp.AllowDrop = true;
             this.TextBox_structuresInp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.TextBox_structuresInp.Location = new System.Drawing.Point(12, 314);
+            this.TextBox_structuresInp.Location = new System.Drawing.Point(12, 424);
             this.TextBox_structuresInp.Name = "TextBox_structuresInp";
-            this.TextBox_structuresInp.Size = new System.Drawing.Size(379, 21);
+            this.TextBox_structuresInp.Size = new System.Drawing.Size(555, 21);
             this.TextBox_structuresInp.TabIndex = 2;
             this.TextBox_structuresInp.DragDrop += new System.Windows.Forms.DragEventHandler(this.TextBox_zonesInp_DragDrop);
             this.TextBox_structuresInp.DragEnter += new System.Windows.Forms.DragEventHandler(this.TextBox_zonesInp_DragEnter);
@@ -91,7 +93,7 @@ namespace Hm2Flac3D.Enhanced
             // 
             this.Label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.Label1.AutoSize = true;
-            this.Label1.Location = new System.Drawing.Point(12, 247);
+            this.Label1.Location = new System.Drawing.Point(12, 357);
             this.Label1.Name = "Label1";
             this.Label1.Size = new System.Drawing.Size(59, 12);
             this.Label1.TabIndex = 3;
@@ -101,7 +103,7 @@ namespace Hm2Flac3D.Enhanced
             // 
             this.Label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.Label2.AutoSize = true;
-            this.Label2.Location = new System.Drawing.Point(12, 296);
+            this.Label2.Location = new System.Drawing.Point(12, 406);
             this.Label2.Name = "Label2";
             this.Label2.Size = new System.Drawing.Size(89, 12);
             this.Label2.TabIndex = 3;
@@ -110,7 +112,7 @@ namespace Hm2Flac3D.Enhanced
             // ButtonChooseZones
             // 
             this.ButtonChooseZones.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.ButtonChooseZones.Location = new System.Drawing.Point(396, 267);
+            this.ButtonChooseZones.Location = new System.Drawing.Point(572, 377);
             this.ButtonChooseZones.Name = "ButtonChooseZones";
             this.ButtonChooseZones.Size = new System.Drawing.Size(75, 23);
             this.ButtonChooseZones.TabIndex = 1;
@@ -121,7 +123,7 @@ namespace Hm2Flac3D.Enhanced
             // ButtonChooseStructures
             // 
             this.ButtonChooseStructures.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.ButtonChooseStructures.Location = new System.Drawing.Point(396, 312);
+            this.ButtonChooseStructures.Location = new System.Drawing.Point(572, 422);
             this.ButtonChooseStructures.Name = "ButtonChooseStructures";
             this.ButtonChooseStructures.Size = new System.Drawing.Size(75, 23);
             this.ButtonChooseStructures.TabIndex = 2;
@@ -142,7 +144,7 @@ namespace Hm2Flac3D.Enhanced
             this.LabelHello.ReadOnly = true;
             this.LabelHello.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.LabelHello.ShortcutsEnabled = false;
-            this.LabelHello.Size = new System.Drawing.Size(462, 209);
+            this.LabelHello.Size = new System.Drawing.Size(638, 319);
             this.LabelHello.TabIndex = 3;
             this.LabelHello.TabStop = false;
             this.LabelHello.Text = "******** CONVERT INP CODE(IMPORTED FROM HYPERMESH) TO FLAC3D ********";
@@ -151,16 +153,16 @@ namespace Hm2Flac3D.Enhanced
             // ProgressBar1
             // 
             this.ProgressBar1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.ProgressBar1.Location = new System.Drawing.Point(0, 378);
+            this.ProgressBar1.Location = new System.Drawing.Point(0, 488);
             this.ProgressBar1.Name = "ProgressBar1";
-            this.ProgressBar1.Size = new System.Drawing.Size(484, 10);
+            this.ProgressBar1.Size = new System.Drawing.Size(660, 10);
             this.ProgressBar1.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.ProgressBar1.TabIndex = 4;
             // 
             // ButtonNoLiner
             // 
             this.ButtonNoLiner.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.ButtonNoLiner.Location = new System.Drawing.Point(11, 346);
+            this.ButtonNoLiner.Location = new System.Drawing.Point(11, 456);
             this.ButtonNoLiner.Name = "ButtonNoLiner";
             this.ButtonNoLiner.Size = new System.Drawing.Size(75, 23);
             this.ButtonNoLiner.TabIndex = 6;
@@ -172,7 +174,7 @@ namespace Hm2Flac3D.Enhanced
             // button_OpenWorkDirectory
             // 
             this.button_OpenWorkDirectory.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_OpenWorkDirectory.Location = new System.Drawing.Point(316, 347);
+            this.button_OpenWorkDirectory.Location = new System.Drawing.Point(492, 457);
             this.button_OpenWorkDirectory.Name = "button_OpenWorkDirectory";
             this.button_OpenWorkDirectory.Size = new System.Drawing.Size(75, 23);
             this.button_OpenWorkDirectory.TabIndex = 8;
@@ -181,6 +183,27 @@ namespace Hm2Flac3D.Enhanced
             this.button_OpenWorkDirectory.UseVisualStyleBackColor = true;
             this.button_OpenWorkDirectory.Click += new System.EventHandler(this.button_OpenWorkDirectory_Click);
             // 
+            // label3
+            // 
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(353, 463);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(29, 12);
+            this.label3.TabIndex = 9;
+            this.label3.Text = "容差";
+            this.ToolTip1.SetToolTip(this.label3, "用来包围单元形心的空间立方体的边长");
+            // 
+            // TextboxTolerance
+            // 
+            this.TextboxTolerance.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.TextboxTolerance.Location = new System.Drawing.Point(388, 458);
+            this.TextboxTolerance.Name = "TextboxTolerance";
+            this.TextboxTolerance.PositiveOnly = true;
+            this.TextboxTolerance.Size = new System.Drawing.Size(78, 21);
+            this.TextboxTolerance.TabIndex = 10;
+            this.ToolTip1.SetToolTip(this.TextboxTolerance, "推荐值：0.001~0.02");
+            // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -188,7 +211,7 @@ namespace Hm2Flac3D.Enhanced
             this.ToolStripMenuItem_Help});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(484, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(660, 25);
             this.menuStrip1.TabIndex = 7;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -198,22 +221,22 @@ namespace Hm2Flac3D.Enhanced
             this.ToolStripMenuItem_ClearText,
             this.ToolStripMenuItem_Directory});
             this.ToolStripMenuItem_Setting.Name = "ToolStripMenuItem_Setting";
-            this.ToolStripMenuItem_Setting.Size = new System.Drawing.Size(45, 20);
+            this.ToolStripMenuItem_Setting.Size = new System.Drawing.Size(44, 21);
             this.ToolStripMenuItem_Setting.Text = "设置";
             // 
             // ToolStripMenuItem_ClearText
             // 
             this.ToolStripMenuItem_ClearText.Name = "ToolStripMenuItem_ClearText";
-            this.ToolStripMenuItem_ClearText.Size = new System.Drawing.Size(126, 22);
+            this.ToolStripMenuItem_ClearText.Size = new System.Drawing.Size(124, 22);
             this.ToolStripMenuItem_ClearText.Text = "清除文本";
             this.ToolStripMenuItem_ClearText.Click += new System.EventHandler(this.ToolStripMenuItem_ClearText_Click);
             // 
             // ToolStripMenuItem_Directory
             // 
             this.ToolStripMenuItem_Directory.Name = "ToolStripMenuItem_Directory";
-            this.ToolStripMenuItem_Directory.Size = new System.Drawing.Size(126, 22);
+            this.ToolStripMenuItem_Directory.Size = new System.Drawing.Size(124, 22);
             this.ToolStripMenuItem_Directory.Text = "工作路径";
-            this.ToolStripMenuItem_Directory.ToolTipText = "命令文本的输入文件夹";
+            this.ToolStripMenuItem_Directory.ToolTipText = "inp文件要导出到的文件夹";
             this.ToolStripMenuItem_Directory.Click += new System.EventHandler(this.ToolStripMenuItem_Directory_Click);
             // 
             // ToolStripMenuItem_Help
@@ -222,7 +245,7 @@ namespace Hm2Flac3D.Enhanced
             this.ToolStripMenuItem_HelpDocument,
             this.ToolStripMenuItem_About});
             this.ToolStripMenuItem_Help.Name = "ToolStripMenuItem_Help";
-            this.ToolStripMenuItem_Help.Size = new System.Drawing.Size(45, 20);
+            this.ToolStripMenuItem_Help.Size = new System.Drawing.Size(44, 21);
             this.ToolStripMenuItem_Help.Text = "帮助";
             // 
             // ToolStripMenuItem_HelpDocument
@@ -243,7 +266,9 @@ namespace Hm2Flac3D.Enhanced
             this.AcceptButton = this.buttonTransForm;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(484, 388);
+            this.ClientSize = new System.Drawing.Size(660, 498);
+            this.Controls.Add(this.TextboxTolerance);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.button_OpenWorkDirectory);
             this.Controls.Add(this.ButtonNoLiner);
             this.Controls.Add(this.ProgressBar1);
@@ -292,5 +317,7 @@ namespace Hm2Flac3D.Enhanced
         private Button button_OpenWorkDirectory;
         private ToolStripMenuItem ToolStripMenuItem_ClearText;
         private ToolStripMenuItem ToolStripMenuItem_HelpDocument;
+        private Label label3;
+        private Utility.TextBoxNum TextboxTolerance;
     }
 }

@@ -244,7 +244,7 @@ namespace Hm2Flac3D.Enhanced
 
                 //将此行中所有的单元id添加到集合中
                 listEleId.AddRange(elementIds.Where(r => !string.IsNullOrEmpty(r)).Select(int.Parse).ToArray());
-                
+
                 //读取下一个节点
                 strLine = sr.ReadLine();
                 match = Regex.Match(strLine, pattern);
@@ -295,7 +295,7 @@ namespace Hm2Flac3D.Enhanced
 
                 //将此行中所有的单元id添加到集合中
                 listNdId.AddRange(elementIds.Where(r => !string.IsNullOrEmpty(r)).Select(int.Parse).ToArray());
-                
+
                 //读取下一个节点
                 strLine = sr.ReadLine();
                 match = Regex.Match(strLine, pattern);
@@ -351,7 +351,19 @@ namespace Hm2Flac3D.Enhanced
             GroupCollection groups = default(GroupCollection);
             string strLine = "";
             // 在inp文件中的大致的结构为：      87482,     49066,     49224,     49040,     49065,     37816,     37974,     37790, 换行 37815
-            strLine = sr.ReadLine();
+            do
+            {
+                // 避免出现如下问题：*ELEMENT,TYP...的下一行为空行。
+                /*
+                 *ELEMENT,TYPE=C3D8,ELSET=aisle_Left
+
+     31594,     35831,     35833,     35782,     35780,     35938,     35940,     35889,
+     35887
+                 */
+                strLine = sr.ReadLine();
+                // 解决办法为继续向下读取下一行，直到出现第一行数据（正常情况下此行有7个数值）。
+            } while (string.IsNullOrEmpty(strLine));
+
             do
             {
                 strLine = strLine + sr.ReadLine(); // 将两行的内容连接成一行

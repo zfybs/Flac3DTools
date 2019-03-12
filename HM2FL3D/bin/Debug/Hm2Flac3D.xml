@@ -152,6 +152,32 @@
         <member name="P:Hm2Flac3D.Utility.Hm2Fl3dSetting.StructuresInpPath">
             <summary> 结构单元的 inp 文件的绝对路径 </summary>
         </member>
+        <member name="T:Hm2Flac3D.Utility.TextBoxNum">
+            <summary> 自定义控件：只能输入数值的文本框。
+            当文本框中的数值发生变化时，会触发 ValueNumberChanged 事件，可以通过此事件中的 double 类型的参数来获取最新的数值。
+            </summary>
+        </member>
+        <member name="E:Hm2Flac3D.Utility.TextBoxNum.ValueNumberChanged">
+            <summary> double 类型的参数即表示文本框中所代表的最新的数值。 </summary>
+        </member>
+        <member name="P:Hm2Flac3D.Utility.TextBoxNum.ValueNumber">
+            <summary> 文本框中所对应的数值 </summary>
+        </member>
+        <member name="P:Hm2Flac3D.Utility.TextBoxNum.IntegerOnly">
+            <summary> 文本框中是否只允许输入整数 </summary>
+        </member>
+        <member name="P:Hm2Flac3D.Utility.TextBoxNum.PositiveOnly">
+            <summary> 文本框中是否只允许输入正值（包括0） </summary>
+        </member>
+        <member name="F:Hm2Flac3D.Utility.TextBoxNum._textPattern">
+            <summary> 正则表达式的匹配模式 </summary>
+        </member>
+        <member name="M:Hm2Flac3D.Utility.TextBoxNum.#ctor">
+            <summary> 构造函数 </summary>
+        </member>
+        <member name="M:Hm2Flac3D.Utility.TextBoxNum.ConstructRegexPattern">
+            <summary> 根据是否只允许正数或者整数来设置对应的匹配选项 </summary>
+        </member>
         <member name="T:Hm2Flac3D.Utility.XYZ">
             <summary>
             一个空间的坐标点或者空间的矢量
@@ -182,6 +208,10 @@
         </member>
         <member name="M:Hm2Flac3D.Utility.XYZ.Length">
             <summary> 空间矢量的长度 </summary>
+        </member>
+        <member name="M:Hm2Flac3D.Utility.XYZ.Scale(System.Double)">
+            <summary> 对矢量进行缩放 </summary>
+            <param name="ratio">缩放比例</param>
         </member>
         <member name="M:Hm2Flac3D.Utility.XYZ.FindCentroid(Hm2Flac3D.Utility.XYZ,Hm2Flac3D.Utility.XYZ,Hm2Flac3D.Utility.XYZ)">
             <summary>
@@ -550,7 +580,7 @@
             <summary>
             用来框选住 Liner 的形心的一个立方体区域，其单位为m。也就是说，Hypermesh中要尽量保证模型的网格尺寸不要小于这个值。
             </summary>
-            <remarks></remarks>
+            <remarks>如果立方体的边长为1mm，则此常数值就设置为0.0005。在测试中，Flac所能接受的立方体容差约为0.00006m</remarks>
         </member>
         <member name="M:Hm2Flac3D.Enhanced.Hm2Flac3DHandler.ExtendCentroid(Hm2Flac3D.Utility.XYZ)">
             <summary>

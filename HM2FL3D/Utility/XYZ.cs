@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+
 namespace Hm2Flac3D.Utility
 {
     /// <summary>
@@ -35,7 +37,9 @@ namespace Hm2Flac3D.Utility
         /// <returns></returns>
         public double DistanceTo(XYZ node2)
         {
-            return Math.Sqrt(Math.Pow((X - node2.X), 2) + Math.Pow((Y - node2.Y), 2) + Math.Pow((Z - node2.Z), 2));
+            var a = Math.Sqrt(Math.Pow((this.X - node2.X), 2) + Math.Pow((this.Y - node2.Y), 2) + Math.Pow((this.Z - node2.Z), 2));
+            var b = a;
+            return a;
         }
 
         /// <summary> 一个空间点沿空间的位移矢量移动后的新位置 </summary>
@@ -73,6 +77,13 @@ namespace Hm2Flac3D.Utility
             return Math.Sqrt(Math.Pow(X, 2) + Math.Pow(Y, 2) + Math.Pow(Z, 2));
         }
 
+        /// <summary> 对矢量进行缩放 </summary>
+        /// <param name="ratio">缩放比例</param>
+        public XYZ Scale(double ratio)
+        {
+            return new XYZ(X * ratio, Y * ratio, Z * ratio);
+        }
+
         #endregion
 
         /// <summary>
@@ -84,9 +95,10 @@ namespace Hm2Flac3D.Utility
         /// <returns></returns>
         public static XYZ FindCentroid(XYZ node1, XYZ node2, XYZ node3)
         {
-            return new XYZ(Convert.ToDouble((node1.X + node2.X + node3.X) / 3), Convert.ToDouble(
-                (node1.Y + node2.Y + node3.Y) / 3), Convert.ToDouble(
-                    (node1.Z + node2.Z + node3.Z) / 3));
+            return new XYZ(
+                (node1.X + node2.X + node3.X) / 3,
+                (node1.Y + node2.Y + node3.Y) / 3,
+                (node1.Z + node2.Z + node3.Z) / 3);
         }
 
         /// <summary>
@@ -124,7 +136,9 @@ namespace Hm2Flac3D.Utility
             // 利用杠杆原理计算两个三角形的组合四边形形心位置：area1 * x=area2 * (centDis-x)
             double x = centDis / (area1 / area2 + 1); // 四边形的形心点处在两个三角形的形心连线上，x 为四边形的形心点到第1个三角形形心的距离。
 
+            // 返回形心点的坐标
             return c1.Move(c1.VectorTo(c2).SetLength(x));
+            //return c1.Move(c1.VectorTo(c2).Scale(x / centDis));
         }
 
         /// <summary> 计算空间三角形的面积  </summary>
@@ -136,8 +150,10 @@ namespace Hm2Flac3D.Utility
             double b = XYZ.Distance(node2, node3);
             double c = XYZ.Distance(node3, node1);
 
-            double p = (a + b + c) / 2;
-            return p * (p - a) * (p - b) * (p - c); // 海伦公式
+            // double p = (a + b + c) / 2;
+            //return Math.Sqrt(p * (p - a) * (p - b) * (p - c)); // 海伦公式
+
+            return Math.Sqrt((a + b + c) * (b + c - a) * (a + c - b) * (a + b - c) / 16);
         }
     }
 }

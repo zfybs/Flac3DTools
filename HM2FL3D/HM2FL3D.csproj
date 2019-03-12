@@ -144,6 +144,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Utility\TextBoxNum.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Utility\XYZ.cs" />
   </ItemGroup>
   <ItemGroup>
