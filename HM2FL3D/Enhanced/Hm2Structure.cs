@@ -15,7 +15,7 @@ namespace Hm2Flac3D.Enhanced
         /// 每一组Structural Element 的id号，此id号为全局的，各种不同类型的结构单元之间的id号也没有相同的。
         /// </summary>
         /// <remarks></remarks>
-        private int _selId = 1;
+        private int _globalSelId = 1;
 
         /// <summary>
         /// 一个全局的节点集合，其中包含了所有结构单元中的节点，而且其中的节点编号没有重复。
@@ -23,6 +23,43 @@ namespace Hm2Flac3D.Enhanced
         /// <remarks></remarks>
         private Dictionary<int, XYZ> _allNodes = new Dictionary<int, XYZ>();
 
+        /// <summary>
+        /// Liner单元是附着于Hm中Element Set集合中的3D单元的表面创建出来的，当同一个Element Set中，3D单元的表面同时存在S3或S4的二维单元时，应将这些单元放置到相同的sel liner id中。
+        /// </summary>
+        /// <remarks>
+        /// 避免出现如下情况：
+        /// Sel Liner id 2 em group LG_CircularCube Range x=(6917.23818,6917.24318) y=(4023.51887,4023.52387) z=(1965.85547,1965.86047)
+        /// sel group  Liner-LG_CircularCube range id 2
+        /// Sel Liner id 6 em group LG_CircularCube Range x=(6912.63975,6912.64475) y=(4029.43823,4029.44323) z=(1986.85124,1986.85624)
+        /// sel group  Liner-LG_CircularCube range id 6
+        /// </remarks>
+        private Dictionary<string, int> _LinerId_Group = new Dictionary<string, int>();
+
+        /// <summary>
+        /// 参考 <seealso cref="_LinerId_Group"/> 的说明
+        /// </summary>
+        private Dictionary<string, int> _ShellId_Group = new Dictionary<string, int>();
+
+        /*
+        /// <summary>
+        /// Liner单元是附着于Hm中Element Set集合中的3D单元的表面创建出来的，当同一个Element Set中，3D单元的表面同时存在S3或S4的二维单元时，应将这些单元放置到相同的sel liner id中。
+        /// </summary>
+        /// <remarks>
+        /// 避免出现如下情况：
+        /// Sel Liner id 2 em group LG_CircularCube Range x=(6917.23818,6917.24318) y=(4023.51887,4023.52387) z=(1965.85547,1965.86047)
+        /// sel group  Liner-LG_CircularCube range id 2
+        /// Sel Liner id 6 em group LG_CircularCube Range x=(6912.63975,6912.64475) y=(4029.43823,4029.44323) z=(1986.85124,1986.85624)
+        /// sel group  Liner-LG_CircularCube range id 6
+        /// </remarks>
+        private class Attached2DSel
+        {
+            public string ElementSetName;
+            public int SelId;
+            public StreamWriter txtWriter;
+        }
+
+        private List<Attached2DSel> Attached2DSels = new List<Attached2DSel>();
+        */
         #endregion
 
         /// <summary>
@@ -104,33 +141,68 @@ namespace Hm2Flac3D.Enhanced
 
         protected override string GenerateElement(ElementType type, StreamReader sr_inp, string componentName)
         {
-
             //
             Flac3dCommandWriters fcw = Flac3dCommandWriters.GetUniqueInstance();
             Flac3DCommandType fct = Hm2Flac3DHandler.GetCommandType(type);
-            StreamWriter swSel = fcw.GetWriter(fct, componentName,  _selId);
+            StreamWriter swSel = fcw.GetWriter(fct, componentName, _globalSelId);
             //
             // 结构单元
             string strLine;
+            int selId = 1;
             if (type == ElementType.BEAM)
             {
-                strLine = Gen_Beam(sr_inp, swSel, componentName, _selId);
+                strLine = Gen_Beam(sr_inp, swSel, componentName, _globalSelId);
+                _globalSelId++;
             }
             else if (type == ElementType.PILE)
             {
-                strLine = Gen_Pile(sr_inp, swSel, componentName, _selId);
+                strLine = Gen_Pile(sr_inp, swSel, componentName, _globalSelId);
+                _globalSelId++;
             }
             else if (type == ElementType.SHELL3)
             {
-                strLine = Gen_Shell3(sr_inp, swSel, componentName, _selId);
+                if (_ShellId_Group.ContainsKey(componentName))
+                {
+                    selId = _ShellId_Group[componentName];
+                    strLine = Gen_Shell3(sr_inp, swSel, componentName, selId);
+                }
+                else
+                {
+                    _ShellId_Group.Add(componentName, _globalSelId);
+                    selId = _globalSelId;
+                    strLine = Gen_Shell3(sr_inp, swSel, componentName, selId);
+                    _globalSelId++;
+                }
             }
             else if (type == (ElementType.Liner3))
             {
-                strLine = Gen_Liner(sr_inp, swSel, componentName, _selId, true);
+                if (_LinerId_Group.ContainsKey(componentName))
+                {
+                    selId = _LinerId_Group[componentName];
+                    strLine = Gen_Liner(sr_inp, swSel, componentName, selId, true);
+                }
+                else
+                {
+                    _LinerId_Group.Add(componentName, _globalSelId);
+                    selId = _globalSelId;
+                    strLine = Gen_Liner(sr_inp, swSel, componentName, selId, true);
+                    _globalSelId++;
+                }
             }
             else if (type == ElementType.Liner4)
             {
-                strLine = Gen_Liner(sr_inp, swSel, componentName, _selId, false);
+                if (_LinerId_Group.ContainsKey(componentName))
+                {
+                    selId = _LinerId_Group[componentName];
+                    strLine = Gen_Liner(sr_inp, swSel, componentName, selId, false);
+                }
+                else
+                {
+                    _LinerId_Group.Add(componentName, _globalSelId);
+                    selId = _globalSelId;
+                    strLine = Gen_Liner(sr_inp, swSel, componentName, selId, false);
+                    _globalSelId++;
+                }
             } //Hypermesh中的类型在Flac3d中没有设置对应的类型
             else
             {
@@ -139,7 +211,6 @@ namespace Hm2Flac3D.Enhanced
                 //如果某行字符串没有进行任何的数据提取，或者进行单元类型的判断，则继续读取下一行字符。
                 strLine = sr_inp.ReadLine();
             }
-            _selId++;
             return strLine;
         }
 
@@ -154,7 +225,7 @@ namespace Hm2Flac3D.Enhanced
             //
             Flac3dCommandWriters fcw = Flac3dCommandWriters.GetUniqueInstance();
             Flac3DCommandType fct = Hm2Flac3DHandler.GetCommandType(ElementType.SelNode);
-            StreamWriter swNode = fcw.GetWriter(fct, Flac3dCommandWriters.FileSelNode,  null);
+            StreamWriter swNode = fcw.GetWriter(fct, Flac3dCommandWriters.FileSelNode, null);
             //
             strLine = sr.ReadLine(); // 节点信息在inp中的大致的结构为： "   16,  10.0     ,  6.6666666666667,  0.0     "
             while (!(strLine.StartsWith("*")))
@@ -190,12 +261,11 @@ namespace Hm2Flac3D.Enhanced
         private string Gen_Pile(StreamReader sr, StreamWriter sw, string component, int selId)
         {
             string pattern = @"^\s*(\d*),\s*(\d*),\s*(\d*)";
-            string strLine = "";
             long eleId = 0;
             long node1 = 0;
             long node2 = 0;
             //
-            strLine = sr.ReadLine(); // 大致的结构为： "        16,  10.0           ,  6.6666666666667,  0.0            "
+            string strLine = GetFirstDataString(sr); // 大致的结构为：  单元id, 节点1 2 3 4 5 6
             Match match = default(Match);
             GroupCollection groups = default(GroupCollection);
             match = Regex.Match(strLine, pattern);
@@ -233,12 +303,11 @@ namespace Hm2Flac3D.Enhanced
         private string Gen_Beam(StreamReader sr, StreamWriter sw, string component, int selId)
         {
             string pattern = @"^\s*(\d*),\s*(\d*),\s*(\d*)";
-            string strLine = "";
             long eleId = 0;
             long node1 = 0;
             long node2 = 0;
             //
-            strLine = sr.ReadLine(); // 大致的结构为： "        16,  10.0           ,  6.6666666666667,  0.0            "
+            string strLine = GetFirstDataString(sr);  // 大致的结构为： "        16,  10.0           ,  6.6666666666667,  0.0            "
             Match match = default(Match);
             GroupCollection groups = default(GroupCollection);
             match = Regex.Match(strLine, pattern);
@@ -278,13 +347,12 @@ namespace Hm2Flac3D.Enhanced
         private string Gen_Shell3(StreamReader sr, StreamWriter sw, string component, int selId)
         {
             string pattern = @"^\s*(\d*),\s*(\d*),\s*(\d*),\s*(\d*)";
-            string strLine = "";
             long eleId = 0;
             long node1 = 0;
             long node2 = 0;
             long node3 = 0;
             //
-            strLine = sr.ReadLine(); // 大致的结构为： "        16,  10.0           ,  6.6666666666667,  0.0            "
+            string strLine = GetFirstDataString(sr);  // 大致的结构为： "        16,  10.0           ,  6.6666666666667,  0.0            "
             Match match = default(Match);
             GroupCollection groups = default(GroupCollection);
             match = Regex.Match(strLine, pattern);
@@ -368,13 +436,12 @@ namespace Hm2Flac3D.Enhanced
         private string Gen_Liner3(StreamReader sr, StreamWriter sw, string componentName, string groupName, int selId)
         {
             string pattern = @"^\s*(\d*),\s*(\d*),\s*(\d*),\s*(\d*)";
-            string strLine = "";
             int eleId;
             int node1 = 0;
             int node2 = 0;
             int node3 = 0;
             //
-            strLine = sr.ReadLine(); // S3类型的信息在inp中，大致的结构为： " 102038,    107275,    105703,    105704"
+            string strLine = GetFirstDataString(sr); // S3类型的信息在inp中，大致的结构为： " 102038,    107275,    105703,    105704"
             Match match;
             GroupCollection groups;
             match = Regex.Match(strLine, pattern);
@@ -406,7 +473,6 @@ namespace Hm2Flac3D.Enhanced
             }
 
             sw.WriteLine("sel group  {0} range id {1}", componentName, selId);
-            // 大致的结构为：SEL PILESEL  cid   109200 id   109200 nodes  1770004 1769720
             return strLine;
         }
 
@@ -424,14 +490,13 @@ namespace Hm2Flac3D.Enhanced
         private string Gen_Liner4(StreamReader sr, StreamWriter sw, string componentName, string groupName, int selId)
         {
             string pattern = @"^\s*(\d*),\s*(\d*),\s*(\d*),\s*(\d*),\s*(\d*)";
-            string strLine = "";
             int eleId;
             int node1 = 0;
             int node2 = 0;
             int node3 = 0;
             int node4 = 0;
             //
-            strLine = sr.ReadLine(); // S4 类型的信息在inp中，大致的结构为： " 102038,    107275,    105703,    105704,    104375 "
+            string strLine = GetFirstDataString(sr);// S4 类型的信息在inp中，大致的结构为： " 102038,    107275,    105703,    105704,    104375 "
             Match match = default(Match);
             GroupCollection groups = default(GroupCollection);
             match = Regex.Match(strLine, pattern);

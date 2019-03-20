@@ -260,7 +260,7 @@
             <summary> 将不同类型的结构单元导出到一个或者多个文本中 </summary>
             <param name="path_StructFile">记录结构单元的inp文件的绝对路径</param>
         </member>
-        <member name="F:Hm2Flac3D.Enhanced.Hm2Structure._selId">
+        <member name="F:Hm2Flac3D.Enhanced.Hm2Structure._globalSelId">
             <summary>
             每一组Structural Element 的id号，此id号为全局的，各种不同类型的结构单元之间的id号也没有相同的。
             </summary>
@@ -271,6 +271,23 @@
             一个全局的节点集合，其中包含了所有结构单元中的节点，而且其中的节点编号没有重复。
             </summary>
             <remarks></remarks>
+        </member>
+        <member name="F:Hm2Flac3D.Enhanced.Hm2Structure._LinerId_Group">
+            <summary>
+            Liner单元是附着于Hm中Element Set集合中的3D单元的表面创建出来的，当同一个Element Set中，3D单元的表面同时存在S3或S4的二维单元时，应将这些单元放置到相同的sel liner id中。
+            </summary>
+            <remarks>
+            避免出现如下情况：
+            Sel Liner id 2 em group LG_CircularCube Range x=(6917.23818,6917.24318) y=(4023.51887,4023.52387) z=(1965.85547,1965.86047)
+            sel group  Liner-LG_CircularCube range id 2
+            Sel Liner id 6 em group LG_CircularCube Range x=(6912.63975,6912.64475) y=(4029.43823,4029.44323) z=(1986.85124,1986.85624)
+            sel group  Liner-LG_CircularCube range id 6
+            </remarks>
+        </member>
+        <member name="F:Hm2Flac3D.Enhanced.Hm2Structure._ShellId_Group">
+            <summary>
+            参考 <seealso cref="F:Hm2Flac3D.Enhanced.Hm2Structure._LinerId_Group"/> 的说明
+            </summary>
         </member>
         <member name="M:Hm2Flac3D.Enhanced.Hm2Structure.#ctor(System.IO.StreamReader,System.Text.StringBuilder)">
             <summary>
@@ -414,6 +431,13 @@
             <param name="type"> 此单元的类型 </param>
             <param name="sr"> 用来提取数据的inp文件 </param>
             <param name="Component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
+            <returns></returns>
+        </member>
+        <member name="M:Hm2Flac3D.Enhanced.InpReader.GetFirstDataString(System.IO.StreamReader)">
+            <summary>
+            在inp中读取到类似“*ELEMENT,TYPE=C3D6,ELSET=someSet”之后，确保第一行数据不是空行。
+            </summary>
+            <param name="sr"></param>
             <returns></returns>
         </member>
         <member name="T:Hm2Flac3D.Enhanced.Flac3dCommandWriters">

@@ -78,5 +78,26 @@ namespace Hm2Flac3D.Enhanced
         /// <param name="Component"> 当前读取到Inp中的那一个 Component（即 Hypermesh 中的 Component） </param>
         /// <returns></returns>
         protected abstract string GenerateElement(ElementType type, StreamReader sr, string component);
+
+        /// <summary>
+        /// 在inp中读取到类似“*ELEMENT,TYPE=C3D6,ELSET=someSet”之后，确保第一行数据不是空行。
+        /// </summary>
+        /// <param name="sr"></param>
+        /// <returns></returns>
+        public static  string GetFirstDataString(StreamReader sr)
+        {
+            string strLine = "";
+            do
+            {
+                // 避免在“C3D6,C3D8...”等类型的单元中出现如下问题：*ELEMENT,TYPE=C3D6,ELSET=aisle_Left 的下一行为空行。
+                /*
+*ELEMENT,TYPE=C3D6,ELSET=aisle_Left
+     31595,     35767,     35769,     35827,     35874,     35876,     35934
+                 */
+                strLine = sr.ReadLine();  // 大致的结构为：  单元id, 节点1 2 3 4 5 6
+                // 解决办法为继续向下读取下一行，直到出现第一行数据（正常情况下此行有8个数值）。
+            } while (string.IsNullOrEmpty(strLine));
+            return strLine;
+        }
     }
 }

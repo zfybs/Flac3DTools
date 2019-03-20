@@ -349,20 +349,7 @@ namespace Hm2Flac3D.Enhanced
             //
             Match match = default(Match);
             GroupCollection groups = default(GroupCollection);
-            string strLine = "";
-            // 在inp文件中的大致的结构为：      87482,     49066,     49224,     49040,     49065,     37816,     37974,     37790, 换行 37815
-            do
-            {
-                // 避免出现如下问题：*ELEMENT,TYP...的下一行为空行。
-                /*
-                 *ELEMENT,TYPE=C3D8,ELSET=aisle_Left
-
-     31594,     35831,     35833,     35782,     35780,     35938,     35940,     35889,
-     35887
-                 */
-                strLine = sr.ReadLine();
-                // 解决办法为继续向下读取下一行，直到出现第一行数据（正常情况下此行有7个数值）。
-            } while (string.IsNullOrEmpty(strLine));
+            string strLine = GetFirstDataString(sr);
 
             do
             {
@@ -429,8 +416,8 @@ namespace Hm2Flac3D.Enhanced
             //
             Match match = default(Match);
             GroupCollection groups = default(GroupCollection);
-            string strLine = "";
-            strLine = sr.ReadLine(); // 大致的结构为：  单元id, 节点1 2 3 4 5 6
+            string strLine = GetFirstDataString(sr);
+
             match = Regex.Match(strLine, pattern);
             while (match.Success)
             {
@@ -467,6 +454,7 @@ namespace Hm2Flac3D.Enhanced
             return strLine;
         }
 
+
         /// <summary>
         /// 生成四面体（金字塔形、四节点）单元，并返回跳出循环的字符串
         /// </summary>
@@ -491,8 +479,7 @@ namespace Hm2Flac3D.Enhanced
             //
             Match match = default(Match);
             GroupCollection groups = default(GroupCollection);
-            string strLine = "";
-            strLine = sr.ReadLine(); // 大致的结构为：  单元id, 节点1 2 3 4 5 6
+            string strLine = GetFirstDataString(sr); // 大致的结构为：  单元id, 节点1 2 3 4 5 6
             match = Regex.Match(strLine, pattern);
             while (match.Success)
             {
